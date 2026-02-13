@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useGesture } from "@use-gesture/react";
 import { useBoardStore } from "@/store/boardStore";
 import type { NotepadWidget as NotepadWidgetType } from "@/types";
 import { DragWrapper } from "./DragWrapper";
+import { ResizeHandle } from "./ResizeHandle";
 
 interface NotepadWidgetProps {
   widget: NotepadWidgetType;
@@ -18,10 +18,8 @@ export function NotepadWidget({ widget, standalone }: NotepadWidgetProps) {
   const [isEditing, setIsEditing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const noteRef = useRef<HTMLDivElement>(null);
-  const resizeRef = useRef<HTMLDivElement>(null);
 
   const updateWidget = useBoardStore((s) => s.updateWidget);
-  const zoom = useBoardStore((s) => s.viewport.zoom);
 
   useEffect(() => {
     if (isEditing && textareaRef.current) {
@@ -46,29 +44,12 @@ export function NotepadWidget({ widget, standalone }: NotepadWidgetProps) {
     }
   }, [isEditing, handleClickOutside]);
 
-  // Resize handle gesture
-  useGesture(
-    {
-      onDrag: ({ delta: [dx, dy], event }) => {
-        event.stopPropagation();
-        updateWidget(widget.id, {
-          width: Math.max(MIN_WIDTH, widget.width + dx / zoom),
-          height: Math.max(MIN_HEIGHT, widget.height + dy / zoom),
-        });
-      },
-    },
-    {
-      target: resizeRef,
-      drag: { filterTaps: true },
-    }
-  );
-
   const inner = (
     <div
         ref={noteRef}
         className="w-full h-full rounded-xl shadow-md border border-black/10 dark:border-white/10
           bg-white dark:bg-[#1e2328] transition-shadow duration-150 hover:shadow-lg
-          flex flex-col overflow-hidden"
+          flex flex-col overflow-hidden relative group"
       >
         {/* Header */}
         <div className="flex items-center px-3 pt-2 pb-1">
@@ -108,19 +89,7 @@ export function NotepadWidget({ widget, standalone }: NotepadWidgetProps) {
           )}
         </div>
 
-        {/* Resize handle */}
-        <div
-          ref={resizeRef}
-          className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize touch-none"
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <svg
-            width="16" height="16" viewBox="0 0 16 16"
-            className="text-gray-300 dark:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <path d="M14 14L8 14L14 8Z" fill="currentColor" />
-          </svg>
-        </div>
+        <ResizeHandle widgetId={widget.id} width={widget.width} height={widget.height} minWidth={MIN_WIDTH} minHeight={MIN_HEIGHT} />
       </div>
   );
 

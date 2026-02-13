@@ -1,4 +1,4 @@
-export type WidgetType = "sticky" | "notepad" | "taskList" | "sticker" | "calendar";
+export type WidgetType = "sticky" | "notepad" | "taskList" | "sticker" | "calendar" | "linkCard" | "focus" | "codeSnippet" | "dayPlanner";
 
 export interface WidgetBase {
   id: string;
@@ -52,12 +52,59 @@ export interface CalendarWidget extends WidgetBase {
   year: number;
 }
 
+export interface LinkCardWidget extends WidgetBase {
+  type: "linkCard";
+  title: string;
+  url: string;
+}
+
+export interface FocusWidget extends WidgetBase {
+  type: "focus";
+  title: string;
+  items: string[];
+}
+
+export interface CodeSnippetWidget extends WidgetBase {
+  type: "codeSnippet";
+  language: string;
+  content: string;
+}
+
+/** Sub-task in a day planner task */
+export interface DayPlannerSubTask {
+  id: string;
+  text: string;
+  done: boolean;
+}
+
+/** Single task in a day column (Sunsama-style) */
+export interface DayPlannerTask {
+  id: string;
+  text: string;
+  done: boolean;
+  duration?: number; // minutes
+  scheduledTime?: string; // "10:00"
+  subTasks?: DayPlannerSubTask[];
+  tags?: string[];
+}
+
+export interface DayPlannerWidget extends WidgetBase {
+  type: "dayPlanner";
+  startDate: string; // YYYY-MM-DD
+  numDays: number; // 2-7
+  tasksByDate: Record<string, DayPlannerTask[]>; // key = YYYY-MM-DD
+}
+
 export type Widget =
   | StickyWidget
   | NotepadWidget
   | TaskListWidget
   | StickerWidget
-  | CalendarWidget;
+  | CalendarWidget
+  | LinkCardWidget
+  | FocusWidget
+  | CodeSnippetWidget
+  | DayPlannerWidget;
 
 export interface Viewport {
   x: number;

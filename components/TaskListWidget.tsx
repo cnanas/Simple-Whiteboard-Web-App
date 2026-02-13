@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { useBoardStore } from "@/store/boardStore";
 import type { TaskListWidget as TaskListWidgetType, TaskItem } from "@/types";
 import { DragWrapper } from "./DragWrapper";
+import { ResizeHandle } from "./ResizeHandle";
 
 interface TaskListWidgetProps {
   widget: TaskListWidgetType;
@@ -49,7 +50,7 @@ export function TaskListWidget({ widget, standalone }: TaskListWidgetProps) {
     <div
         className="w-full h-full rounded-xl shadow-md border border-black/10 dark:border-white/10
           bg-white dark:bg-[#1e2328] transition-shadow duration-150 hover:shadow-lg
-          flex flex-col overflow-hidden"
+          flex flex-col overflow-hidden relative group"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-3 pt-2 pb-1">
@@ -155,6 +156,7 @@ export function TaskListWidget({ widget, standalone }: TaskListWidgetProps) {
             placeholder="Add a task..."
           />
         </div>
+        <ResizeHandle widgetId={widget.id} width={widget.width} height={widget.height} minWidth={200} minHeight={160} />
       </div>
   );
 

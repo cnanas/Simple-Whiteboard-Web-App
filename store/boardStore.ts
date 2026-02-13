@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { nanoid } from "nanoid";
 import type { Widget, WidgetType, Viewport } from "@/types";
+const DEFAULT_QUICK_ACTIONS: WidgetType[] = ["sticky", "notepad", "taskList", "calendar", "linkCard", "dayPlanner"];
 import { STICKY_COLORS, WIDGET_BASE_KEYS } from "@/types";
 import { encrypt, decrypt } from "@/lib/crypto";
 
@@ -11,6 +12,7 @@ interface BoardState {
   widgets: Widget[];
   viewport: Viewport;
   viewMode: ViewMode;
+  quickActions: WidgetType[];
 
   addWidget: (type: WidgetType) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,6 +21,7 @@ interface BoardState {
   bringToFront: (id: string) => void;
   setViewport: (viewport: Partial<Viewport>) => void;
   setViewMode: (mode: ViewMode) => void;
+  setQuickActions: (actions: WidgetType[]) => void;
   loadBoard: (widgets: Widget[], viewport: Viewport) => void;
   lockWidget: (id: string, password: string) => Promise<void>;
   unlockWidget: (id: string, password: string) => Promise<boolean>;
@@ -49,6 +52,14 @@ function getDefaultContent(type: WidgetType): Record<string, unknown> {
     case "taskList": return { title: "", items: [] };
     case "sticker": return { emoji: "" };
     case "calendar": return { month: 0, year: 2000 };
+    case "linkCard": return { title: "", url: "" };
+    case "focus": return { title: "Today", items: [] };
+    case "codeSnippet": return { language: "text", content: "" };
+    case "dayPlanner": {
+      const d = new Date();
+      const start = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      return { startDate: start, numDays: 5, tasksByDate: {} };
+    }
   }
 }
 
@@ -58,6 +69,7 @@ export const useBoardStore = create<BoardState>()(
       widgets: [],
       viewport: { x: 0, y: 0, zoom: 1 },
       viewMode: "canvas",
+      quickActions: DEFAULT_QUICK_ACTIONS,
 
       addWidget: (type: WidgetType) => {
         const { viewport, widgets } = get();
@@ -116,6 +128,49 @@ export const useBoardStore = create<BoardState>()(
             };
             break;
           }
+          case "linkCard": {
+            const { x, y } = getCenter(viewport, 100, 40);
+            widget = {
+              id, type: "linkCard", x, y,
+              width: 220, height: 80, zIndex: maxZ + 1, locked: false,
+              title: "",
+              url: "",
+            };
+            break;
+          }
+          case "focus": {
+            const { x, y } = getCenter(viewport, 120, 100);
+            widget = {
+              id, type: "focus", x, y,
+              width: 260, height: 180, zIndex: maxZ + 1, locked: false,
+              title: "Today",
+              items: [],
+            };
+            break;
+          }
+          case "codeSnippet": {
+            const { x, y } = getCenter(viewport, 150, 100);
+            widget = {
+              id, type: "codeSnippet", x, y,
+              width: 300, height: 160, zIndex: maxZ + 1, locked: false,
+              language: "text",
+              content: "",
+            };
+            break;
+          }
+          case "dayPlanner": {
+            const d = new Date();
+            const startDate = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+            const { x, y } = getCenter(viewport, 280, 180);
+            widget = {
+              id, type: "dayPlanner", x, y,
+              width: 560, height: 360, zIndex: maxZ + 1, locked: false,
+              startDate,
+              numDays: 5,
+              tasksByDate: {},
+            };
+            break;
+          }
         }
 
         set({ widgets: [...widgets, widget] });
@@ -148,6 +203,8 @@ export const useBoardStore = create<BoardState>()(
       },
 
       setViewMode: (viewMode) => set({ viewMode }),
+
+      setQuickActions: (quickActions) => set({ quickActions }),
 
       loadBoard: (widgets, viewport) => {
         const valid = widgets.filter(
@@ -195,12 +252,13 @@ export const useBoardStore = create<BoardState>()(
     }),
     {
       name: "whiteboard-store",
-      partialize: (state) => ({ widgets: state.widgets, viewport: state.viewport }),
+      partialize: (state) => ({ widgets: state.widgets, viewport: state.viewport, quickActions: state.quickActions }),
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.widgets = state.widgets.filter(
             (w): w is Widget => w != null && typeof w === "object" && "id" in w
           );
+          if (!state.quickActions?.length) state.quickActions = DEFAULT_QUICK_ACTIONS;
         }
       },
     }

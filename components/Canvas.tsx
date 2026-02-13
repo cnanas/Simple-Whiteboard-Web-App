@@ -29,22 +29,27 @@ export function Canvas() {
           y: viewport.y + dy,
         });
       },
-      onWheel: ({ delta: [, dy], event }) => {
+      onWheel: ({ delta: [dx, dy], event }) => {
         event.preventDefault();
-        const zoomFactor = dy > 0 ? 0.95 : 1.05;
-        const newZoom = clampZoom(viewport.zoom * zoomFactor);
-
-        // Zoom toward cursor position
-        const rect = canvasRef.current!.getBoundingClientRect();
-        const cursorX = event.clientX - rect.left;
-        const cursorY = event.clientY - rect.top;
-
-        const scale = newZoom / viewport.zoom;
-        setViewport({
-          zoom: newZoom,
-          x: cursorX - scale * (cursorX - viewport.x),
-          y: cursorY - scale * (cursorY - viewport.y),
-        });
+        // Mac trackpad: pinch sends wheel with ctrlKey → zoom. Two-finger swipe → pan.
+        if (event.ctrlKey || event.metaKey) {
+          const zoomFactor = dy > 0 ? 0.95 : 1.05;
+          const newZoom = clampZoom(viewport.zoom * zoomFactor);
+          const rect = canvasRef.current!.getBoundingClientRect();
+          const cursorX = event.clientX - rect.left;
+          const cursorY = event.clientY - rect.top;
+          const scale = newZoom / viewport.zoom;
+          setViewport({
+            zoom: newZoom,
+            x: cursorX - scale * (cursorX - viewport.x),
+            y: cursorY - scale * (cursorY - viewport.y),
+          });
+        } else {
+          setViewport({
+            x: viewport.x - dx,
+            y: viewport.y - dy,
+          });
+        }
       },
       onPinch: ({ offset: [scale], origin: [ox, oy] }) => {
         const newZoom = clampZoom(scale);
@@ -78,6 +83,7 @@ export function Canvas() {
   return (
     <div
       ref={canvasRef}
+      data-tour="canvas"
       className="fixed inset-0 overflow-hidden cursor-grab active:cursor-grabbing touch-none
         bg-[#f8fafc] dark:bg-[#0f1419]"
     >

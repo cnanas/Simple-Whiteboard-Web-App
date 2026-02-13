@@ -5,6 +5,7 @@ import { useBoardStore } from "@/store/boardStore";
 import { STICKY_COLORS } from "@/types";
 import type { StickyWidget } from "@/types";
 import { DragWrapper } from "./DragWrapper";
+import { ResizeHandle } from "./ResizeHandle";
 
 interface StickyNoteProps {
   widget: StickyWidget;
@@ -47,7 +48,7 @@ export function StickyNote({ widget, standalone }: StickyNoteProps) {
     <div
         ref={noteRef}
         className="w-full h-full rounded-xl shadow-md border border-black/5 dark:border-white/10
-          transition-shadow duration-150 hover:shadow-lg flex flex-col overflow-hidden"
+          transition-shadow duration-150 hover:shadow-lg flex flex-col overflow-hidden relative group"
         style={{ backgroundColor: widget.color }}
       >
         {/* Header bar with color toggle */}
@@ -120,6 +121,7 @@ export function StickyNote({ widget, standalone }: StickyNoteProps) {
             </p>
           )}
         </div>
+        <ResizeHandle widgetId={widget.id} width={widget.width} height={widget.height} minWidth={120} minHeight={100} />
       </div>
   );
 

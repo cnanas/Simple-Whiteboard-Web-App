@@ -33,6 +33,28 @@ function widgetToText(widget: Widget): string {
       return widget.emoji ? `Sticker: ${widget.emoji}` : "";
     case "calendar":
       return `Calendar: ${MONTH_NAMES[widget.month]} ${widget.year}`;
+    case "linkCard":
+      return [widget.title, widget.url].filter(Boolean).join("\n") || "";
+    case "focus":
+      return [widget.title, ...widget.items].filter(Boolean).join("\n") || "";
+    case "codeSnippet":
+      return widget.content || "";
+    case "dayPlanner": {
+      const lines: string[] = [];
+      const dates = Object.keys(widget.tasksByDate || {}).sort();
+      for (const dateKey of dates) {
+        const tasks = (widget.tasksByDate || {})[dateKey] || [];
+        if (tasks.length === 0) continue;
+        lines.push(`${dateKey}:`);
+        for (const t of tasks) {
+          lines.push(`  ${t.done ? "[x]" : "[ ]"} ${t.text}${t.scheduledTime ? ` @ ${t.scheduledTime}` : ""}`);
+          for (const sub of t.subTasks || []) {
+            lines.push(`    ${sub.done ? "[x]" : "[ ]"} ${sub.text}`);
+          }
+        }
+      }
+      return lines.join("\n");
+    }
     default:
       return "";
   }

@@ -7,7 +7,7 @@ interface WidgetPickerProps {
   onClose: () => void;
 }
 
-const WIDGET_OPTIONS: { type: WidgetType; label: string; icon: React.ReactNode }[] = [
+export const WIDGET_OPTIONS: { type: WidgetType; label: string; icon: React.ReactNode }[] = [
   {
     type: "sticky",
     label: "Sticky Note",
@@ -61,6 +61,50 @@ const WIDGET_OPTIONS: { type: WidgetType; label: string; icon: React.ReactNode }
         <line x1="16" y1="2" x2="16" y2="6" />
         <line x1="8" y1="2" x2="8" y2="6" />
         <line x1="3" y1="10" x2="21" y2="10" />
+      </svg>
+    ),
+  },
+  {
+    type: "linkCard",
+    label: "Link",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+      </svg>
+    ),
+  },
+  {
+    type: "focus",
+    label: "Today / Focus",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 6v6l4 2" />
+      </svg>
+    ),
+  },
+  {
+    type: "codeSnippet",
+    label: "Code",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <polyline points="16 18 22 12 16 6" />
+        <polyline points="8 6 2 12 8 18" />
+      </svg>
+    ),
+  },
+  {
+    type: "dayPlanner",
+    label: "Day planner",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <rect x="4" y="3" width="4" height="18" rx="1" />
+        <rect x="10" y="3" width="4" height="18" rx="1" />
+        <rect x="16" y="3" width="4" height="18" rx="1" />
+        <line x1="4" y1="8" x2="8" y2="8" />
+        <line x1="10" y1="8" x2="14" y2="8" />
+        <line x1="16" y1="8" x2="20" y2="8" />
       </svg>
     ),
   },

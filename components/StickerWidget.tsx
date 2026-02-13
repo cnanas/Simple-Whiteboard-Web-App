@@ -5,6 +5,7 @@ import { useBoardStore } from "@/store/boardStore";
 import { EMOJIS } from "@/types";
 import type { StickerWidget as StickerWidgetType } from "@/types";
 import { DragWrapper } from "./DragWrapper";
+import { ResizeHandle } from "./ResizeHandle";
 
 interface StickerWidgetProps {
   widget: StickerWidgetType;
@@ -16,7 +17,7 @@ export function StickerWidget({ widget, standalone }: StickerWidgetProps) {
   const updateWidget = useBoardStore((s) => s.updateWidget);
 
   const inner = (
-    <div className="w-full h-full flex items-center justify-center">
+    <div className="w-full h-full flex items-center justify-center relative group">
       {showPicker && !widget.emoji ? (
           <div
             className="w-full h-full rounded-xl shadow-md border border-black/10 dark:border-white/10
@@ -70,6 +71,7 @@ export function StickerWidget({ widget, standalone }: StickerWidgetProps) {
             {widget.emoji}
           </button>
         )}
+      <ResizeHandle widgetId={widget.id} width={widget.width} height={widget.height} minWidth={60} minHeight={60} />
     </div>
   );
 

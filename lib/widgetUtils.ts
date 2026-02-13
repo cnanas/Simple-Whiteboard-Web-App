@@ -12,6 +12,10 @@ export function getWidgetTypeLabel(type: Widget["type"]): string {
     taskList: "Task List",
     sticker: "Sticker",
     calendar: "Calendar",
+    linkCard: "Link",
+    focus: "Today / Focus",
+    codeSnippet: "Code Snippet",
+    dayPlanner: "Day planner",
   };
   return labels[type];
 }
@@ -32,6 +36,16 @@ export function getWidgetPreview(widget: Widget): string {
       return widget.emoji || "Sticker";
     case "calendar":
       return `${MONTH_NAMES[widget.month]} ${widget.year}`;
+    case "linkCard":
+      return (widget.title || widget.url || "Link").slice(0, 50) || "Link";
+    case "focus":
+      return widget.items.length ? `${widget.title || "Today"} (${widget.items.length})` : (widget.title || "Today");
+    case "codeSnippet":
+      return (widget.content || "Code").split("\n")[0].slice(0, 50) || "Code";
+    case "dayPlanner": {
+      const total = Object.values(widget.tasksByDate || {}).flat().length;
+      return total ? `${widget.numDays} days, ${total} tasks` : "Day planner";
+    }
     default:
       return "";
   }

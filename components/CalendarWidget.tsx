@@ -3,6 +3,7 @@
 import { useBoardStore } from "@/store/boardStore";
 import type { CalendarWidget as CalendarWidgetType } from "@/types";
 import { DragWrapper } from "./DragWrapper";
+import { ResizeHandle } from "./ResizeHandle";
 
 interface CalendarWidgetProps {
   widget: CalendarWidgetType;
@@ -55,7 +56,7 @@ export function CalendarWidget({ widget, standalone }: CalendarWidgetProps) {
     <div
         className="w-full h-full rounded-xl shadow-md border border-black/10 dark:border-white/10
           bg-white dark:bg-[#1e2328] transition-shadow duration-150 hover:shadow-lg
-          flex flex-col overflow-hidden p-3"
+          flex flex-col overflow-hidden p-3 relative group"
       >
         {/* Month nav */}
         <div className="flex items-center justify-between mb-2">
@@ -115,6 +116,7 @@ export function CalendarWidget({ widget, standalone }: CalendarWidgetProps) {
             );
           })}
         </div>
+        <ResizeHandle widgetId={widget.id} width={widget.width} height={widget.height} minWidth={200} minHeight={220} />
       </div>
   );
 
