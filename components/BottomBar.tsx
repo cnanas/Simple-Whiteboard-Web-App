@@ -21,6 +21,7 @@ import { WidgetPicker, WIDGET_OPTIONS } from "./WidgetPicker";
 import { ThemeToggle } from "./ThemeToggle";
 import { AuthMenu } from "./AuthMenu";
 import { exportToTxt, exportToPdf } from "@/lib/export";
+import { ChangelogModal } from "./ChangelogModal";
 
 const LONG_PRESS_MS = 600;
 
@@ -90,6 +91,7 @@ export function BottomBar() {
   const [reorderMode, setReorderMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showExport, setShowExport] = useState(false);
+  const [showChangelog, setShowChangelog] = useState(false);
   const [activeId, setActiveId] = useState<WidgetType | null>(null);
   const customizeRef = useRef<HTMLDivElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
@@ -375,17 +377,32 @@ export function BottomBar() {
                 <span className="hidden sm:inline">{viewMode === "canvas" ? "List" : "Canvas"}</span>
               </button>
               <div className="w-px h-5 bg-gray-200/80 dark:bg-white/10 rounded-full" />
-              <div className="[&_button]:!bg-gray-100 dark:[&_button]:!bg-gray-700 [&_button]:!rounded-xl [&_button]:hover:!bg-gray-200 dark:[&_button]:hover:!bg-gray-600 [&_button]:!px-3 [&_button]:!py-2 [&_button]:!text-sm">
+              <div className="[&_button]:!bg-gray-100 dark:[&_button]:!bg-gray-700 [&_button]:!rounded-xl [&_button]:hover:!bg-gray-200 dark:[&_button]:hover:!bg-gray-600 [&_button]:!px-3 [&_button]:!py-2 [&_button]:!text-sm [&_button]:!whitespace-nowrap [&_button]:!shrink-0">
                 <AuthMenu />
               </div>
               <div className="w-px h-5 bg-gray-200/80 dark:bg-white/10 rounded-full" />
               <div className="[&_button]:!p-2 [&_button]:!rounded-xl">
                 <ThemeToggle />
               </div>
+              <div className="w-px h-5 bg-gray-200/80 dark:bg-white/10 rounded-full" />
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSettings(false);
+                  setShowChangelog(true);
+                }}
+                className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors py-2 px-1"
+              >
+                Changelog
+              </button>
             </div>
           )}
         </div>
       </div>
+
+      {showChangelog && (
+        <ChangelogModal onClose={() => setShowChangelog(false)} />
+      )}
 
       {showPicker && (
         <WidgetPicker

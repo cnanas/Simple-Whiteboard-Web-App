@@ -100,7 +100,7 @@ export function AuthMenu() {
       <div className="relative">
         <button
           onClick={() => signIn(undefined, { callbackUrl: "/" })}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg whitespace-nowrap shrink-0
             bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600
             text-gray-700 dark:text-gray-200 text-sm font-medium
             transition-colors duration-150"
