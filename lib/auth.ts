@@ -58,6 +58,12 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
   },
   callbacks: {
+    redirect({ url, baseUrl }) {
+      // Send users to home if they were going to signin or a relative path
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      return baseUrl + "/";
+    },
     jwt({ token, user }) {
       if (user) {
         token.id = user.id;

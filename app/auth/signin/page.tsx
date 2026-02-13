@@ -20,17 +20,23 @@ function SignInForm() {
     setLoading(true);
     try {
       const res = await signIn("credentials", {
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password,
         redirect: false,
+        callbackUrl: "/",
       });
-      if (res?.error) {
+      if (!res) {
+        setError("No response from server. Check your connection.");
+        setLoading(false);
+        return;
+      }
+      if (res.error) {
         setError("Invalid email or password");
         setLoading(false);
         return;
       }
-      if (res?.url) window.location.href = res.url;
-      else window.location.href = "/";
+      // Always go to home on success (res.url can sometimes point back to signin)
+      window.location.href = res.url && !res.url.includes("/auth/signin") ? res.url : "/";
     } catch {
       setError("Something went wrong");
     } finally {
