@@ -1,4 +1,8 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Whiteboard
+
+An open-space whiteboard in the browser: sticky notes, notepads, task lists, calendar, stickers. Pan/zoom canvas, optional widget lock (encrypted), list view, export to TXT/PDF, PWA support.
+
+**Runs fully in the browser** — data is stored in localStorage by default. Optional **Sign in with GitHub** or **Sign in with Apple** plus cloud save (Neon Postgres) is implemented; see [DEPLOY.md](./DEPLOY.md) for env vars and setup.
 
 ## Getting Started
 
@@ -31,6 +35,9 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push this repo to GitHub (public or private).
+2. In [Vercel](https://vercel.com), **Add New Project** → import the repo → **Deploy**.
+3. No environment variables or database are required for the default app.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For optional **login + cloud save**, see [DEPLOY.md](./DEPLOY.md).
+# Simple-Whiteboard-Web-App
