@@ -4,6 +4,17 @@ import GitHubProvider from "next-auth/providers/github";
 import AppleProvider from "next-auth/providers/apple";
 import { findUserByEmail, verifyPassword } from "@/lib/user";
 
+if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === "production") {
+  console.error(
+    "[NextAuth] Missing NEXTAUTH_SECRET. Set it in Vercel → Project → Settings → Environment Variables (e.g. run: openssl rand -base64 32)"
+  );
+}
+if (!process.env.NEXTAUTH_URL?.startsWith("http") && process.env.NODE_ENV === "production") {
+  console.error(
+    "[NextAuth] Missing or invalid NEXTAUTH_URL. Set it to your app URL in Vercel env vars (e.g. https://your-app.vercel.app)"
+  );
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({

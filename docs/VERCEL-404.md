@@ -1,4 +1,26 @@
-# Fixing 404 on Vercel
+# Vercel troubleshooting
+
+## "Server error" or "There is a problem with the server configuration" when clicking Sign in
+
+NextAuth needs two env vars on Vercel. Without them, sign-in fails with a generic server error.
+
+1. **Vercel** → your project → **Settings** → **Environment Variables**.
+2. Add (for **Production**, and optionally Preview/Development):
+
+   - **`NEXTAUTH_URL`**  
+     Your app’s URL, no trailing slash, e.g.  
+     `https://your-project-name.vercel.app`
+
+   - **`NEXTAUTH_SECRET`**  
+     A random string (e.g. run locally: `openssl rand -base64 32` and paste the result).
+
+3. **Redeploy**: **Deployments** → ⋮ on latest → **Redeploy**.
+
+After the redeploy, try **Sign in** again.
+
+---
+
+## Fixing 404 on Vercel
 
 If you see **404: NOT_FOUND** when opening your deployed app:
 
