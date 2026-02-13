@@ -5,7 +5,7 @@ import { setTutorialDone } from "./onboarding";
 const TOUR_ELEMENTS = {
   canvas: "[data-tour='canvas']",
   quickActions: "[data-tour='quick-actions']",
-  more: "[data-tour='more']",
+  customize: "[data-tour='customize']",
   settings: "[data-tour='settings']",
 } as const;
 
@@ -41,11 +41,11 @@ export function runTutorial(): void {
       },
     },
     {
-      element: TOUR_ELEMENTS.more,
+      element: TOUR_ELEMENTS.customize,
       popover: {
-        title: "More widgets",
+        title: "Customize bar",
         description:
-          "Open the full picker for all widget types: sticky notes, task lists, calendar, day planner, code snippets, and more.",
+          "Tap the gear to add or remove widgets from the bar. Use \"More widgets…\" for the full list of types.",
         side: "top",
         align: "center",
       },

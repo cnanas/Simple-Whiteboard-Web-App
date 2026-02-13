@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useMemo } from "react";
 import { useGesture } from "@use-gesture/react";
 import { useBoardStore } from "@/store/boardStore";
 import { WidgetRenderer } from "./WidgetRenderer";
@@ -8,11 +8,36 @@ import { WidgetRenderer } from "./WidgetRenderer";
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 3;
 
+/** Throttle viewport updates to once per animation frame to reduce re-renders during pan/zoom */
+function useThrottledViewport() {
+  const setViewport = useBoardStore((s) => s.setViewport);
+  const viewportRef = useRef(useBoardStore.getState().viewport);
+  const rafId = useRef<number | null>(null);
+  const pending = useRef<Partial<{ x: number; y: number; zoom: number }>>({});
+
+  viewportRef.current = useBoardStore((s) => s.viewport);
+
+  return useCallback((update: Partial<{ x: number; y: number; zoom: number }>) => {
+    pending.current = { ...pending.current, ...update };
+    const apply = () => {
+      rafId.current = null;
+      const next = { ...viewportRef.current, ...pending.current };
+      pending.current = {};
+      setViewport(next);
+    };
+    if (rafId.current === null) {
+      rafId.current = requestAnimationFrame(apply);
+    }
+  }, [setViewport]);
+}
+
 export function Canvas() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const viewport = useBoardStore((s) => s.viewport);
+  const viewportRef = useRef(viewport);
+  viewportRef.current = viewport;
   const widgets = useBoardStore((s) => s.widgets);
-  const setViewport = useBoardStore((s) => s.setViewport);
+  const setViewportThrottled = useThrottledViewport();
 
   const clampZoom = useCallback(
     (z: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z)),
@@ -22,62 +47,54 @@ export function Canvas() {
   useGesture(
     {
       onDrag: ({ delta: [dx, dy], event }) => {
-        // Only pan if dragging the canvas background, not a widget
         if ((event.target as HTMLElement).closest("[data-widget]")) return;
-        setViewport({
-          x: viewport.x + dx,
-          y: viewport.y + dy,
-        });
+        const v = viewportRef.current;
+        setViewportThrottled({ x: v.x + dx, y: v.y + dy });
       },
       onWheel: ({ delta: [dx, dy], event }) => {
         event.preventDefault();
-        // Mac trackpad: pinch sends wheel with ctrlKey → zoom. Two-finger swipe → pan.
+        const v = viewportRef.current;
         if (event.ctrlKey || event.metaKey) {
           const zoomFactor = dy > 0 ? 0.95 : 1.05;
-          const newZoom = clampZoom(viewport.zoom * zoomFactor);
+          const newZoom = clampZoom(v.zoom * zoomFactor);
           const rect = canvasRef.current!.getBoundingClientRect();
           const cursorX = event.clientX - rect.left;
           const cursorY = event.clientY - rect.top;
-          const scale = newZoom / viewport.zoom;
-          setViewport({
+          const scale = newZoom / v.zoom;
+          setViewportThrottled({
             zoom: newZoom,
-            x: cursorX - scale * (cursorX - viewport.x),
-            y: cursorY - scale * (cursorY - viewport.y),
+            x: cursorX - scale * (cursorX - v.x),
+            y: cursorY - scale * (cursorY - v.y),
           });
         } else {
-          setViewport({
-            x: viewport.x - dx,
-            y: viewport.y - dy,
-          });
+          setViewportThrottled({ x: v.x - dx, y: v.y - dy });
         }
       },
       onPinch: ({ offset: [scale], origin: [ox, oy] }) => {
+        const v = viewportRef.current;
         const newZoom = clampZoom(scale);
-
         const rect = canvasRef.current!.getBoundingClientRect();
         const cursorX = ox - rect.left;
         const cursorY = oy - rect.top;
-
-        const s = newZoom / viewport.zoom;
-        setViewport({
+        const s = newZoom / v.zoom;
+        setViewportThrottled({
           zoom: newZoom,
-          x: cursorX - s * (cursorX - viewport.x),
-          y: cursorY - s * (cursorY - viewport.y),
+          x: cursorX - s * (cursorX - v.x),
+          y: cursorY - s * (cursorY - v.y),
         });
       },
     },
     {
       target: canvasRef,
-      drag: {
-        filterTaps: true,
-      },
-      wheel: {
-        eventOptions: { passive: false },
-      },
-      pinch: {
-        scaleBounds: { min: MIN_ZOOM, max: MAX_ZOOM },
-      },
+      drag: { filterTaps: true },
+      wheel: { eventOptions: { passive: false } },
+      pinch: { scaleBounds: { min: MIN_ZOOM, max: MAX_ZOOM } },
     }
+  );
+
+  const widgetList = useMemo(
+    () => widgets.filter(Boolean).map((widget) => <WidgetRenderer key={widget.id} widget={widget} />),
+    [widgets]
   );
 
   return (
@@ -104,9 +121,7 @@ export function Canvas() {
           transformOrigin: "0 0",
         }}
       >
-        {widgets.filter(Boolean).map((widget) => (
-          <WidgetRenderer key={widget.id} widget={widget} />
-        ))}
+        {widgetList}
       </div>
     </div>
   );

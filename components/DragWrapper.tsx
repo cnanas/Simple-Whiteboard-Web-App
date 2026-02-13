@@ -71,8 +71,12 @@ export function DragWrapper({ widget, children, onTap }: DragWrapperProps) {
       {/* Locked overlay */}
       {widget.locked && <LockedOverlay widgetId={widget.id} />}
 
-      {/* Action buttons */}
-      <div className="absolute -top-2 -right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150 z-10">
+      {/* Action buttons — stop propagation so drag gesture doesn't capture (fixes delete on touch/logged in) */}
+      <div
+        data-widget-actions
+        className="absolute -top-2 -right-2 flex gap-1 opacity-50 group-hover:opacity-100 transition-opacity duration-150 z-10 pointer-events-auto"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
         {/* Lock button (only when unlocked) */}
         {!widget.locked && (
           <button
@@ -95,7 +99,9 @@ export function DragWrapper({ widget, children, onTap }: DragWrapperProps) {
 
         {/* Delete button */}
         <button
+          type="button"
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             deleteWidget(widget.id);
           }}

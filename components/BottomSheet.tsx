@@ -8,9 +8,11 @@ interface BottomSheetProps {
   children: ReactNode;
   /** When true, sheet is visible on desktop too (e.g. for widget detail from list view) */
   showOnDesktop?: boolean;
+  /** When 'lg', sheet is visible below lg breakpoint (for FAB menu on tablet). Default 'md'. */
+  hideAboveBreakpoint?: "md" | "lg";
 }
 
-export function BottomSheet({ open, onClose, children, showOnDesktop }: BottomSheetProps) {
+export function BottomSheet({ open, onClose, children, showOnDesktop, hideAboveBreakpoint = "md" }: BottomSheetProps) {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
@@ -22,8 +24,9 @@ export function BottomSheet({ open, onClose, children, showOnDesktop }: BottomSh
 
   if (!open) return null;
 
+  const hideClass = showOnDesktop ? "" : hideAboveBreakpoint === "lg" ? "lg:hidden" : "md:hidden";
   return (
-    <div className={`fixed inset-0 z-[60] ${showOnDesktop ? "" : "md:hidden"}`}>
+    <div className={`fixed inset-0 z-[60] ${hideClass}`}>
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40 transition-opacity"

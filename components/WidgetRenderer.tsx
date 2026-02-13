@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import type { Widget } from "@/types";
 import { StickyNote } from "./StickyNote";
 import { NotepadWidget } from "./NotepadWidget";
@@ -17,7 +18,7 @@ interface WidgetRendererProps {
   standalone?: boolean;
 }
 
-export function WidgetRenderer({ widget, standalone }: WidgetRendererProps) {
+function WidgetRendererInner({ widget, standalone }: WidgetRendererProps) {
   switch (widget.type) {
     case "sticky":
       return <StickyNote widget={widget} standalone={standalone} />;
@@ -39,3 +40,5 @@ export function WidgetRenderer({ widget, standalone }: WidgetRendererProps) {
       return <DayPlannerWidget widget={widget} standalone={standalone} />;
   }
 }
+
+export const WidgetRenderer = memo(WidgetRendererInner);

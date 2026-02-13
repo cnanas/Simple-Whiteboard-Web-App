@@ -7,6 +7,7 @@ import { FAB } from "@/components/FAB";
 import { WidgetListView } from "@/components/WidgetListView";
 import { MobileHeader } from "@/components/MobileHeader";
 import { Onboarding } from "@/components/Onboarding";
+import { BoardSync } from "@/components/BoardSync";
 import { useBoardStore } from "@/store/boardStore";
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
 
   return (
     <Onboarding>
+      <BoardSync />
       {viewMode === "list" ? <WidgetListView /> : <Canvas />}
       <MobileHeader />
       <BottomBar />

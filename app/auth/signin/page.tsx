@@ -1,12 +1,17 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { setSeenSplash } from "@/lib/onboarding";
 
 function SignInForm() {
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    setSeenSplash();
+  }, []);
   const registered = searchParams.get("registered") === "1";
   const errorParam = searchParams.get("error");
   const [email, setEmail] = useState("");

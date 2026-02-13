@@ -89,13 +89,13 @@ export function BottomBar() {
   const [showPicker, setShowPicker] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
   const [reorderMode, setReorderMode] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showExport, setShowExport] = useState(false);
   const [showChangelog, setShowChangelog] = useState(false);
+  const [showExport, setShowExport] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [activeId, setActiveId] = useState<WidgetType | null>(null);
   const customizeRef = useRef<HTMLDivElement>(null);
-  const settingsRef = useRef<HTMLDivElement>(null);
   const exportRef = useRef<HTMLDivElement>(null);
+  const settingsRef = useRef<HTMLDivElement>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressTriggered = useRef(false);
   const quickActions = useBoardStore((s) => s.quickActions);
@@ -183,13 +183,13 @@ export function BottomBar() {
     "p-2.5 sm:p-3 rounded-xl text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-150";
 
   const barClasses =
-    "fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-40 flex items-center gap-1 " +
+    "fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-40 hidden lg:flex items-center gap-1 " +
     "px-3 py-2.5 rounded-full bg-white dark:bg-[#1a1f26] shadow-[0_2px_12px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)] " +
     "border border-black/[0.06] dark:border-white/10 min-w-0";
 
   if (reorderMode) {
     return (
-      <div className="fixed bottom-0 left-0 right-0 z-40 flex flex-col items-center pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <div className="fixed bottom-0 left-0 right-0 z-40 hidden lg:flex flex-col items-center pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -245,19 +245,7 @@ export function BottomBar() {
             </button>
           );
         })}
-        <div className="w-px h-6 mx-0.5 bg-gray-200/80 dark:bg-white/10 rounded-full" />
-        <button
-          data-tour="more"
-          onClick={() => setShowPicker(true)}
-          className={`${iconBtn} flex items-center justify-center [&_svg]:w-5 [&_svg]:h-5`}
-          title="More widgets"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </button>
-        <div className="relative" ref={customizeRef}>
+        <div className="relative" ref={customizeRef} data-tour="customize">
           <button
             onPointerDown={startLongPressForReorder}
             onPointerUp={handleGearPointerUp}
@@ -274,8 +262,19 @@ export function BottomBar() {
           {showCustomize && (
             <div className="absolute bottom-full left-0 mb-1 py-2 px-2 min-w-[200px] rounded-xl
               bg-white dark:bg-[#1a1f26] border border-black/10 dark:border-white/10 shadow-lg z-[100]">
-              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 px-2 pb-2">
-                Add any widget to the bar
+              <button
+                type="button"
+                onClick={() => { setShowPicker(true); setShowCustomize(false); }}
+                className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm text-gray-700 dark:text-gray-200 hover:bg-black/5 dark:hover:bg-white/5 text-left"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                More widgets…
+              </button>
+              <p className="text-xs font-medium text-gray-500 dark:text-gray-400 px-2 pt-1 pb-2 border-t border-black/5 dark:border-white/10 mt-1">
+                Add to bar
               </p>
               {WIDGET_OPTIONS.map((opt) => (
                 <label
@@ -295,9 +294,9 @@ export function BottomBar() {
             </div>
           )}
         </div>
-        <div className="relative" ref={settingsRef}>
+        <div className="w-px h-5 mx-1 bg-gray-200/80 dark:bg-white/10 rounded-full flex-shrink-0" aria-hidden />
+        <div className="relative" ref={settingsRef} data-tour="settings">
           <button
-            data-tour="settings"
             onClick={() => setShowSettings((v) => !v)}
             className={`${iconBtn} flex items-center justify-center [&_svg]:w-5 [&_svg]:h-5 ${showSettings ? "bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-200" : ""}`}
             title="Settings & account"

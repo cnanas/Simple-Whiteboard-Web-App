@@ -5,6 +5,7 @@ import type { Widget, WidgetType, Viewport } from "@/types";
 const DEFAULT_QUICK_ACTIONS: WidgetType[] = ["sticky", "notepad", "taskList", "calendar", "linkCard", "dayPlanner"];
 import { STICKY_COLORS, WIDGET_BASE_KEYS } from "@/types";
 import { encrypt, decrypt } from "@/lib/crypto";
+import { createDebouncedStorage } from "@/lib/debouncedStorage";
 
 export type ViewMode = "canvas" | "list";
 
@@ -253,6 +254,13 @@ export const useBoardStore = create<BoardState>()(
     {
       name: "whiteboard-store",
       partialize: (state) => ({ widgets: state.widgets, viewport: state.viewport, quickActions: state.quickActions }),
+      storage: typeof window !== "undefined"
+        ? createDebouncedStorage({
+            getItem: (n) => localStorage.getItem(n),
+            setItem: (n, v) => localStorage.setItem(n, v),
+            removeItem: (n) => localStorage.removeItem(n),
+          })
+        : undefined,
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.widgets = state.widgets.filter(
