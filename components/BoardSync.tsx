@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useBoardStore } from "@/store/boardStore";
+import type { Widget } from "@/types";
 
 const SAVE_DEBOUNCE_MS = 2000;
 
@@ -35,10 +36,10 @@ export function BoardSync() {
       .then((json) => {
         if (cancelled || !json?.data) return;
         const raw = json.data.widgets;
-        const valid = Array.isArray(raw)
-          ? raw.filter(
+        const valid: Widget[] = Array.isArray(raw)
+          ? (raw.filter(
               (w: unknown) => w != null && typeof w === "object" && "id" in w && "type" in w
-            )
+            ) as Widget[])
           : [];
         const vp = json.data.viewport;
         const viewport =
