@@ -5,6 +5,8 @@ import { useBoardStore } from "@/store/boardStore";
 import type { FocusWidget as FocusWidgetType } from "@/types";
 import { DragWrapper } from "./DragWrapper";
 import { ResizeHandle } from "./ResizeHandle";
+import { TextStyleToolbar } from "./TextStyleToolbar";
+import { getTextStyleClassName } from "@/lib/textStyle";
 
 interface FocusWidgetProps {
   widget: FocusWidgetType;
@@ -55,13 +57,19 @@ export function FocusWidget({ widget, standalone, isSelected }: FocusWidgetProps
         bg-white dark:bg-[#1e2328] transition-shadow duration-150 hover:shadow-lg
         flex flex-col overflow-hidden relative group p-3"
     >
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex flex-wrap items-center justify-between gap-1 mb-2">
         <input
           value={widget.title}
           onChange={(e) => updateWidget(widget.id, { title: e.target.value })}
           onClick={(e) => e.stopPropagation()}
-          className="text-sm font-semibold bg-transparent outline-none text-gray-800 dark:text-gray-200 flex-1"
+          className={`font-semibold bg-transparent outline-none text-gray-800 dark:text-gray-200 flex-1 min-w-0 ${getTextStyleClassName(widget.textStyle)}`}
           placeholder="Today"
+        />
+        <TextStyleToolbar
+          value={widget.textStyle}
+          onChange={(textStyle) => updateWidget(widget.id, { textStyle })}
+          showListOptions={false}
+          className="opacity-0 group-hover:opacity-100 transition-opacity"
         />
       </div>
       <div className="flex-1 min-h-0 overflow-y-auto space-y-1">
@@ -80,11 +88,11 @@ export function FocusWidget({ widget, standalone, isSelected }: FocusWidgetProps
                 }}
                 onBlur={() => setEditingIndex(null)}
                 onClick={(e) => e.stopPropagation()}
-                className="flex-1 text-sm bg-transparent outline-none border-b border-blue-500 text-gray-800 dark:text-gray-200"
+                className={`flex-1 bg-transparent outline-none border-b border-blue-500 text-gray-800 dark:text-gray-200 ${getTextStyleClassName(widget.textStyle)}`}
               />
             ) : (
               <span
-                className="flex-1 text-sm text-gray-700 dark:text-gray-300 cursor-pointer py-0.5"
+                className={`flex-1 text-gray-700 dark:text-gray-300 cursor-pointer py-0.5 ${getTextStyleClassName(widget.textStyle)}`}
                 onClick={(e) => { e.stopPropagation(); setEditingIndex(i); }}
               >
                 {item || "—"}
@@ -110,7 +118,7 @@ export function FocusWidget({ widget, standalone, isSelected }: FocusWidgetProps
               onKeyDown={(e) => { e.stopPropagation(); if (e.key === "Enter") addItem(); }}
               onClick={(e) => e.stopPropagation()}
               placeholder="Add focus item..."
-              className="flex-1 text-sm bg-transparent outline-none text-gray-500 placeholder-gray-400"
+              className={`flex-1 bg-transparent outline-none text-gray-500 placeholder-gray-400 ${getTextStyleClassName(widget.textStyle)}`}
             />
           </div>
         )}

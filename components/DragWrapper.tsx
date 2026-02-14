@@ -17,6 +17,7 @@ interface DragWrapperProps {
 
 export function DragWrapper({ widget, children, onTap, isSelected }: DragWrapperProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const moveBtnRef = useRef<HTMLButtonElement>(null);
   const isDragging = useRef(false);
   const hasMoved = useRef(false);
   const initialPositions = useRef<Map<string, { x: number; y: number }>>(new Map());
@@ -33,67 +34,66 @@ export function DragWrapper({ widget, children, onTap, isSelected }: DragWrapper
   const focusedWidgetId = useBoardStore((s) => s.focusedWidgetId);
   const isFocused = focusedWidgetId === widget.id;
 
-  useGesture(
-    {
-      onDragStart: () => {
-        isDragging.current = false;
-        hasMoved.current = false;
-
-        // Snapshot initial positions of all widgets that will move
-        const positions = new Map<string, { x: number; y: number }>();
-        if (isSelected && selectedWidgets.size > 1) {
-          const allWidgets = useBoardStore.getState().widgets;
-          for (const w of allWidgets) {
-            if (selectedWidgets.has(w.id)) {
-              positions.set(w.id, { x: w.x, y: w.y });
-            }
-          }
-        } else {
-          positions.set(widget.id, { x: widget.x, y: widget.y });
+  const startDrag = () => {
+    isDragging.current = false;
+    hasMoved.current = false;
+    const positions = new Map<string, { x: number; y: number }>();
+    if (isSelected && selectedWidgets.size > 1) {
+      const allWidgets = useBoardStore.getState().widgets;
+      for (const w of allWidgets) {
+        if (selectedWidgets.has(w.id)) {
+          positions.set(w.id, { x: w.x, y: w.y });
         }
-        initialPositions.current = positions;
+      }
+    } else {
+      positions.set(widget.id, { x: widget.x, y: widget.y });
+    }
+    initialPositions.current = positions;
+    bringToFront(widget.id);
+  };
 
-        bringToFront(widget.id);
-      },
-      onDrag: ({ movement: [mx, my], tap }) => {
-        if (tap) return;
+  const doDrag = (mx: number, my: number) => {
+    if (!hasMoved.current) {
+      saveHistory();
+      hasMoved.current = true;
+    }
+    isDragging.current = true;
+    const dx = mx / viewport.zoom;
+    const dy = my / viewport.zoom;
+    if (initialPositions.current.size > 1) {
+      const moves: Record<string, { x: number; y: number }> = {};
+      for (const [id, pos] of initialPositions.current) {
+        moves[id] = { x: pos.x + dx, y: pos.y + dy };
+      }
+      moveWidgets(moves, true);
+    } else {
+      const pos = initialPositions.current.get(widget.id)!;
+      updateWidget(widget.id, { x: pos.x + dx, y: pos.y + dy }, true);
+    }
+  };
 
-        // Save history before first move
-        if (!hasMoved.current) {
-          saveHistory();
-          hasMoved.current = true;
-        }
+  const endDrag = (tap: boolean) => {
+    if (tap && !isDragging.current && onTap && !widget.locked) {
+      onTap();
+    }
+    isDragging.current = false;
+    hasMoved.current = false;
+  };
 
-        isDragging.current = true;
-
-        const dx = mx / viewport.zoom;
-        const dy = my / viewport.zoom;
-
-        // Move all selected widgets together, or just this one
-        if (initialPositions.current.size > 1) {
-          const moves: Record<string, { x: number; y: number }> = {};
-          for (const [id, pos] of initialPositions.current) {
-            moves[id] = { x: pos.x + dx, y: pos.y + dy };
-          }
-          moveWidgets(moves, true);
-        } else {
-          const pos = initialPositions.current.get(widget.id)!;
-          updateWidget(widget.id, {
-            x: pos.x + dx,
-            y: pos.y + dy,
-          }, true);
-        }
-      },
-      onDragEnd: ({ tap }) => {
-        if (tap && !isDragging.current && onTap && !widget.locked) {
-          onTap();
-        }
-        isDragging.current = false;
-        hasMoved.current = false;
-      },
+  const dragHandlers = {
+    onDragStart: startDrag,
+    onDrag: ({ movement: [mx, my], tap }: { movement: [number, number]; tap: boolean }) => {
+      if (tap) return;
+      doDrag(mx, my);
     },
+    onDragEnd: ({ tap }: { tap: boolean }) => endDrag(tap),
+  };
+
+  // Drag only from the move circle button (keeps right-click free for copy/paste)
+  useGesture(
+    { ...dragHandlers },
     {
-      target: wrapperRef,
+      target: moveBtnRef,
       drag: { filterTaps: true },
     }
   );
@@ -102,7 +102,7 @@ export function DragWrapper({ widget, children, onTap, isSelected }: DragWrapper
     <div
       ref={wrapperRef}
       data-widget
-      className={`absolute group touch-none select-none cursor-move hover:shadow-lg transition-shadow ${
+      className={`absolute group hover:shadow-lg transition-shadow ${
         isSelected ? "ring-2 ring-blue-500 ring-offset-2 shadow-xl" : ""
       } ${isFocused ? "widget-focused" : ""}`}
       style={{
@@ -114,17 +114,46 @@ export function DragWrapper({ widget, children, onTap, isSelected }: DragWrapper
       }}
       onPointerDown={(e) => e.stopPropagation()}
     >
-      {children}
+      <div
+        className="w-full h-full min-h-0 overflow-hidden select-text"
+        onClick={(e) => {
+          const target = e.target as HTMLElement;
+          const isInteractive = target.closest("button, a, input, textarea, select, [contenteditable]");
+          const hasSelection = typeof window !== "undefined" && (window.getSelection()?.toString() ?? "").length > 0;
+          if (!widget.locked && onTap && !isInteractive && !hasSelection) {
+            onTap();
+          }
+        }}
+      >
+        {children}
+      </div>
 
       {/* Locked overlay */}
       {widget.locked && <LockedOverlay widgetId={widget.id} />}
 
-      {/* Action buttons — stop propagation so drag gesture doesn't capture (fixes delete on touch/logged in) */}
+      {/* Action buttons: Move, Lock, Delete */}
       <div
         data-widget-actions
         className="absolute -top-2 -right-2 flex gap-1 opacity-50 group-hover:opacity-100 transition-opacity duration-150 z-10 pointer-events-auto"
         onPointerDown={(e) => e.stopPropagation()}
       >
+        {/* Move button — drag from here or hold right-click anywhere on widget */}
+        <button
+          ref={moveBtnRef}
+          type="button"
+          data-widget-move-btn
+          className="w-6 h-6 rounded-full cursor-move touch-none
+            bg-white dark:bg-gray-800 border border-black/10 dark:border-white/10
+            shadow-sm flex items-center justify-center
+            text-black/40 dark:text-white/40 hover:text-gray-600 dark:hover:text-gray-300"
+          title="Drag to move"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2v6m0 8v6M2 12h6m8 0h6" />
+            <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+
         {/* Lock button (only when unlocked) */}
         {!widget.locked && (
           <button

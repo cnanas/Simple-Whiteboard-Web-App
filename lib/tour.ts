@@ -85,6 +85,10 @@ export function runTutorial(): void {
     nextBtnText: "Next",
     prevBtnText: "Back",
     doneBtnText: "Done",
+    onPopoverRender: (popover) => {
+      popover.nextButton.textContent = "Next";
+      popover.previousButton.textContent = "Back";
+    },
   });
 
   driverObj.drive();

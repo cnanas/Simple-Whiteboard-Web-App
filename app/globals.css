@@ -89,3 +89,8 @@ body {
 .animate-scaleIn {
   animation: scaleIn 200ms ease-out;
 }
+
+/* Hide fast-forward/arrow icon on driver.js tour Next button – show text only */
+.driver-popover-next-btn svg {
+  display: none;
+}

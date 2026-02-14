@@ -6,6 +6,8 @@ import { useBoardStore } from "@/store/boardStore";
 import type { TaskListWidget as TaskListWidgetType, TaskItem } from "@/types";
 import { DragWrapper } from "./DragWrapper";
 import { ResizeHandle } from "./ResizeHandle";
+import { TextStyleToolbar } from "./TextStyleToolbar";
+import { getTextStyleClassName } from "@/lib/textStyle";
 
 interface TaskListWidgetProps {
   widget: TaskListWidgetType;
@@ -54,41 +56,48 @@ export function TaskListWidget({ widget, standalone, isSelected }: TaskListWidge
           flex flex-col overflow-hidden relative group"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-3 pt-2 pb-1">
-          {editingTitle ? (
-            <input
-              ref={titleRef}
-              autoFocus
-              value={widget.title}
-              onChange={(e) => {
-                e.stopPropagation();
-                updateWidget(widget.id, { title: e.target.value });
-              }}
-              onKeyDown={(e) => {
-                e.stopPropagation();
-                if (e.key === "Enter" || e.key === "Escape") setEditingTitle(false);
-              }}
-              onBlur={() => setEditingTitle(false)}
-              onClick={(e) => e.stopPropagation()}
-              className="text-sm font-semibold bg-transparent outline-none border-b border-blue-500
-                text-gray-800 dark:text-gray-200 w-full"
-            />
-          ) : (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setEditingTitle(true);
-              }}
-              className="text-sm font-semibold text-gray-800 dark:text-gray-200 hover:text-blue-500 transition-colors"
-            >
-              {widget.title || "Tasks"}
-            </button>
-          )}
-          {widget.items.length > 0 && (
-            <span className="text-xs text-gray-400 dark:text-gray-500 ml-2 shrink-0">
-              {doneCount}/{widget.items.length}
-            </span>
-          )}
+        <div className="flex flex-wrap items-center justify-between gap-1 px-3 pt-2 pb-1">
+          <div className="flex items-center gap-1 min-w-0 flex-1">
+            {editingTitle ? (
+              <input
+                ref={titleRef}
+                autoFocus
+                value={widget.title}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  updateWidget(widget.id, { title: e.target.value });
+                }}
+                onKeyDown={(e) => {
+                  e.stopPropagation();
+                  if (e.key === "Enter" || e.key === "Escape") setEditingTitle(false);
+                }}
+                onBlur={() => setEditingTitle(false)}
+                onClick={(e) => e.stopPropagation()}
+                className={`font-semibold bg-transparent outline-none border-b border-blue-500 text-gray-800 dark:text-gray-200 w-full ${getTextStyleClassName(widget.textStyle)}`}
+              />
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingTitle(true);
+                }}
+                className={`font-semibold text-gray-800 dark:text-gray-200 hover:text-blue-500 transition-colors text-left ${getTextStyleClassName(widget.textStyle)}`}
+              >
+                {widget.title || "Tasks"}
+              </button>
+            )}
+            {widget.items.length > 0 && (
+              <span className="text-xs text-gray-400 dark:text-gray-500 ml-2 shrink-0">
+                {doneCount}/{widget.items.length}
+              </span>
+            )}
+          </div>
+          <TextStyleToolbar
+            value={widget.textStyle}
+            onChange={(textStyle) => updateWidget(widget.id, { textStyle })}
+            showListOptions={false}
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+          />
         </div>
 
         {/* Items */}
@@ -116,11 +125,11 @@ export function TaskListWidget({ widget, standalone, isSelected }: TaskListWidge
                 )}
               </button>
               <span
-                className={`text-sm flex-1 ${
+                className={`flex-1 ${
                   item.done
                     ? "text-gray-400 dark:text-gray-600 line-through"
                     : "text-gray-700 dark:text-gray-300"
-                }`}
+                } ${getTextStyleClassName(widget.textStyle)}`}
               >
                 {item.text}
               </span>
@@ -151,9 +160,7 @@ export function TaskListWidget({ widget, standalone, isSelected }: TaskListWidge
               if (e.key === "Enter") addItem();
             }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full text-sm bg-transparent outline-none
-              text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-600
-              font-[family-name:var(--font-geist-sans)]"
+            className={`w-full bg-transparent outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400 dark:placeholder-gray-600 font-[family-name:var(--font-geist-sans)] ${getTextStyleClassName(widget.textStyle)}`}
             placeholder="Add a task..."
           />
         </div>

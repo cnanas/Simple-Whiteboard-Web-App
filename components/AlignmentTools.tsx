@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { useBoardStore } from "@/store/boardStore";
 
 interface AlignmentToolsProps {
@@ -8,7 +9,7 @@ interface AlignmentToolsProps {
 
 export function AlignmentTools({ selectedWidgets }: AlignmentToolsProps) {
   const widgets = useBoardStore((s) => s.widgets);
-  const updateWidget = useBoardStore((s) => s.updateWidget);
+  const moveWidgets = useBoardStore((s) => s.moveWidgets);
 
   if (selectedWidgets.size < 2) return null;
 
@@ -16,40 +17,44 @@ export function AlignmentTools({ selectedWidgets }: AlignmentToolsProps) {
 
   const alignLeft = () => {
     const minX = Math.min(...selectedItems.map((w) => w.x));
-    selectedItems.forEach((w) => updateWidget(w.id, { x: minX }));
+    const moves: Record<string, { x: number; y: number }> = {};
+    selectedItems.forEach((w) => { moves[w.id] = { x: minX, y: w.y }; });
+    moveWidgets(moves);
   };
 
   const alignRight = () => {
     const maxX = Math.max(...selectedItems.map((w) => w.x + w.width));
-    selectedItems.forEach((w) =>
-      updateWidget(w.id, { x: maxX - w.width })
-    );
+    const moves: Record<string, { x: number; y: number }> = {};
+    selectedItems.forEach((w) => { moves[w.id] = { x: maxX - w.width, y: w.y }; });
+    moveWidgets(moves);
   };
 
   const alignTop = () => {
     const minY = Math.min(...selectedItems.map((w) => w.y));
-    selectedItems.forEach((w) => updateWidget(w.id, { y: minY }));
+    const moves: Record<string, { x: number; y: number }> = {};
+    selectedItems.forEach((w) => { moves[w.id] = { x: w.x, y: minY }; });
+    moveWidgets(moves);
   };
 
   const alignBottom = () => {
     const maxY = Math.max(...selectedItems.map((w) => w.y + w.height));
-    selectedItems.forEach((w) =>
-      updateWidget(w.id, { y: maxY - w.height })
-    );
+    const moves: Record<string, { x: number; y: number }> = {};
+    selectedItems.forEach((w) => { moves[w.id] = { x: w.x, y: maxY - w.height }; });
+    moveWidgets(moves);
   };
 
   const alignCenterH = () => {
     const avgY = selectedItems.reduce((sum, w) => sum + w.y + w.height / 2, 0) / selectedItems.length;
-    selectedItems.forEach((w) =>
-      updateWidget(w.id, { y: avgY - w.height / 2 })
-    );
+    const moves: Record<string, { x: number; y: number }> = {};
+    selectedItems.forEach((w) => { moves[w.id] = { x: w.x, y: avgY - w.height / 2 }; });
+    moveWidgets(moves);
   };
 
   const alignCenterV = () => {
     const avgX = selectedItems.reduce((sum, w) => sum + w.x + w.width / 2, 0) / selectedItems.length;
-    selectedItems.forEach((w) =>
-      updateWidget(w.id, { x: avgX - w.width / 2 })
-    );
+    const moves: Record<string, { x: number; y: number }> = {};
+    selectedItems.forEach((w) => { moves[w.id] = { x: avgX - w.width / 2, y: w.y }; });
+    moveWidgets(moves);
   };
 
   const distributeH = () => {
@@ -59,12 +64,13 @@ export function AlignmentTools({ selectedWidgets }: AlignmentToolsProps) {
     const maxX = sorted[sorted.length - 1].x + sorted[sorted.length - 1].width;
     const totalGap = maxX - minX - sorted.reduce((sum, w) => sum + w.width, 0);
     const gap = totalGap / (sorted.length - 1);
-
+    const moves: Record<string, { x: number; y: number }> = {};
     let currentX = minX;
     sorted.forEach((w) => {
-      updateWidget(w.id, { x: currentX });
+      moves[w.id] = { x: currentX, y: w.y };
       currentX += w.width + gap;
     });
+    moveWidgets(moves);
   };
 
   const distributeV = () => {
@@ -74,17 +80,20 @@ export function AlignmentTools({ selectedWidgets }: AlignmentToolsProps) {
     const maxY = sorted[sorted.length - 1].y + sorted[sorted.length - 1].height;
     const totalGap = maxY - minY - sorted.reduce((sum, w) => sum + w.height, 0);
     const gap = totalGap / (sorted.length - 1);
-
+    const moves: Record<string, { x: number; y: number }> = {};
     let currentY = minY;
     sorted.forEach((w) => {
-      updateWidget(w.id, { y: currentY });
+      moves[w.id] = { x: w.x, y: currentY };
       currentY += w.height + gap;
     });
+    moveWidgets(moves);
   };
 
-  return (
+  const toolbar = (
     <div
-      className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1
+      role="toolbar"
+      aria-label="Alignment and distribution"
+      className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-1
         px-3 py-2 rounded-xl bg-white/95 dark:bg-[#1a1f26]/95 backdrop-blur-md
         shadow-lg border border-black/5 dark:border-white/10"
     >
@@ -200,4 +209,8 @@ export function AlignmentTools({ selectedWidgets }: AlignmentToolsProps) {
       )}
     </div>
   );
+
+  return typeof document !== "undefined"
+    ? createPortal(toolbar, document.body)
+    : toolbar;
 }

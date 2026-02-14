@@ -6,6 +6,9 @@ import type { NotepadWidget as NotepadWidgetType } from "@/types";
 import { DragWrapper } from "./DragWrapper";
 import { ResizeHandle } from "./ResizeHandle";
 import { MarkdownContent } from "./MarkdownContent";
+import { TextStyleToolbar } from "./TextStyleToolbar";
+import { getTextStyleClassName, getListStyle } from "@/lib/textStyle";
+import { applyFormatToSelection, type SelectionFormatType } from "@/lib/selectionFormat";
 
 interface NotepadWidgetProps {
   widget: NotepadWidgetType;
@@ -22,6 +25,30 @@ export function NotepadWidget({ widget, standalone, isSelected }: NotepadWidgetP
   const noteRef = useRef<HTMLDivElement>(null);
 
   const updateWidget = useBoardStore((s) => s.updateWidget);
+
+  const handleFormatSelection = useCallback(
+    (format: SelectionFormatType) => {
+      const ta = textareaRef.current;
+      if (!ta) return;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const result = applyFormatToSelection(widget.content || "", start, end, format);
+      const isBoldOrItalic = format === "bold" || format === "italic";
+      updateWidget(widget.id, {
+        content: result.content,
+        ...(isBoldOrItalic ? { markdown: true } : {}),
+      });
+      if (isBoldOrItalic) {
+        setIsEditing(false);
+      } else {
+        requestAnimationFrame(() => {
+          ta.focus();
+          ta.setSelectionRange(result.selectionStart, result.selectionEnd);
+        });
+      }
+    },
+    [widget.id, widget.content, updateWidget]
+  );
 
   useEffect(() => {
     if (isEditing && textareaRef.current) {
@@ -54,24 +81,18 @@ export function NotepadWidget({ widget, standalone, isSelected }: NotepadWidgetP
           flex flex-col overflow-hidden relative group"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-3 pt-2 pb-1">
+        <div className="flex flex-wrap items-center justify-between gap-1 px-3 pt-2 pb-1">
           <span className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
             Notepad
           </span>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              updateWidget(widget.id, { markdown: !widget.markdown });
-            }}
-            className={`w-5 h-5 rounded flex items-center justify-center text-xs transition-colors opacity-0 group-hover:opacity-100
-              ${widget.markdown ? "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200" : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"}`}
-            title={widget.markdown ? "Disable markdown" : "Enable markdown"}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 7l6 6-6 6V7z" />
-              <path d="M14 7l6 6-6 6V7z" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <TextStyleToolbar
+              value={widget.textStyle}
+              onChange={(textStyle) => updateWidget(widget.id, { textStyle })}
+              onFormatSelection={isEditing ? handleFormatSelection : undefined}
+              showListOptions
+            />
+          </div>
         </div>
 
         {/* Content */}
@@ -88,23 +109,43 @@ export function NotepadWidget({ widget, standalone, isSelected }: NotepadWidgetP
                 e.stopPropagation();
               }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full h-full bg-transparent resize-none outline-none
-                text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-600
-                font-[family-name:var(--font-geist-sans)]"
+              className={`w-full h-full bg-transparent resize-none outline-none text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-600 font-[family-name:var(--font-geist-sans)] ${getTextStyleClassName(widget.textStyle)}`}
               placeholder="Write your notes..."
             />
-          ) : widget.markdown && widget.content ? (
-            <MarkdownContent content={widget.content} className="overflow-y-auto" />
-          ) : (
-            <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words
-              font-[family-name:var(--font-geist-sans)]">
-              {widget.content || (
-                <span className="text-gray-400 dark:text-gray-600 italic">
-                  Click to write...
-                </span>
-              )}
-            </p>
-          )}
+          ) : widget.content ? (
+            <MarkdownContent content={widget.content} className={`overflow-y-auto ${getTextStyleClassName(widget.textStyle)}`} />
+          ) : (() => {
+            const listStyle = getListStyle(widget.textStyle);
+            const lines = (widget.content || "").trim().split(/\n/).filter(Boolean);
+            const contentClass = `text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words font-[family-name:var(--font-geist-sans)] ${getTextStyleClassName(widget.textStyle)}`;
+            if (listStyle === "bullet" && lines.length > 0) {
+              return (
+                <ul className={`list-disc pl-4 space-y-0.5 ${contentClass}`}>
+                  {lines.map((line, i) => (
+                    <li key={i}>{line}</li>
+                  ))}
+                </ul>
+              );
+            }
+            if (listStyle === "number" && lines.length > 0) {
+              return (
+                <ol className={`list-decimal pl-4 space-y-0.5 ${contentClass}`}>
+                  {lines.map((line, i) => (
+                    <li key={i}>{line}</li>
+                  ))}
+                </ol>
+              );
+            }
+            return (
+              <p className={contentClass}>
+                {widget.content || (
+                  <span className="text-gray-400 dark:text-gray-600 italic">
+                    Click to write...
+                  </span>
+                )}
+              </p>
+            );
+          })()}
         </div>
 
         <ResizeHandle widgetId={widget.id} width={widget.width} height={widget.height} minWidth={MIN_WIDTH} minHeight={MIN_HEIGHT} />

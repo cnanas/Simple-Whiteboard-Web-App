@@ -1,5 +1,23 @@
 export type WidgetType = "sticky" | "notepad" | "taskList" | "sticker" | "calendar" | "linkCard" | "focus" | "codeSnippet" | "dayPlanner";
 
+/** Text styling options for widget content */
+export type FontSizeOption = "xs" | "sm" | "base" | "lg" | "xl";
+export type ListStyleOption = "none" | "bullet" | "number";
+
+export interface TextStyle {
+  bold?: boolean;
+  italic?: boolean;
+  fontSize?: FontSizeOption;
+  listStyle?: ListStyleOption;
+}
+
+export const DEFAULT_TEXT_STYLE: TextStyle = {
+  bold: false,
+  italic: false,
+  fontSize: "base",
+  listStyle: "none",
+};
+
 export interface WidgetBase {
   id: string;
   type: WidgetType;
@@ -23,12 +41,14 @@ export interface StickyWidget extends WidgetBase {
   content: string;
   color: string;
   markdown?: boolean;
+  textStyle?: TextStyle;
 }
 
 export interface NotepadWidget extends WidgetBase {
   type: "notepad";
   content: string;
   markdown?: boolean;
+  textStyle?: TextStyle;
 }
 
 export interface TaskItem {
@@ -42,6 +62,7 @@ export interface TaskListWidget extends WidgetBase {
   type: "taskList";
   title: string;
   items: TaskItem[];
+  textStyle?: TextStyle;
 }
 
 export interface StickerWidget extends WidgetBase {
@@ -59,12 +80,14 @@ export interface LinkCardWidget extends WidgetBase {
   type: "linkCard";
   title: string;
   url: string;
+  textStyle?: TextStyle;
 }
 
 export interface FocusWidget extends WidgetBase {
   type: "focus";
   title: string;
   items: string[];
+  textStyle?: TextStyle;
 }
 
 export interface CodeSnippetWidget extends WidgetBase {
