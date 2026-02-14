@@ -9,11 +9,12 @@ import { ResizeHandle } from "./ResizeHandle";
 interface CodeSnippetWidgetProps {
   widget: CodeSnippetWidgetType;
   standalone?: boolean;
+  isSelected?: boolean;
 }
 
 const LANGUAGES = ["text", "javascript", "typescript", "python", "html", "css", "json", "bash"];
 
-export function CodeSnippetWidget({ widget, standalone }: CodeSnippetWidgetProps) {
+export function CodeSnippetWidget({ widget, standalone, isSelected }: CodeSnippetWidgetProps) {
   const [isEditing, setIsEditing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -82,7 +83,7 @@ export function CodeSnippetWidget({ widget, standalone }: CodeSnippetWidgetProps
 
   if (standalone) return inner;
   return (
-    <DragWrapper widget={widget} onTap={() => setIsEditing(true)}>
+    <DragWrapper widget={widget} isSelected={isSelected} onTap={() => setIsEditing(true)}>
       {inner}
     </DragWrapper>
   );

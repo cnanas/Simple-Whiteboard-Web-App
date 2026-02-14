@@ -12,38 +12,84 @@ interface DragWrapperProps {
   widget: Widget;
   children: ReactNode;
   onTap?: () => void;
+  isSelected?: boolean;
 }
 
-export function DragWrapper({ widget, children, onTap }: DragWrapperProps) {
+export function DragWrapper({ widget, children, onTap, isSelected }: DragWrapperProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
+  const hasMoved = useRef(false);
+  const initialPositions = useRef<Map<string, { x: number; y: number }>>(new Map());
   const [showLockModal, setShowLockModal] = useState(false);
 
   const updateWidget = useBoardStore((s) => s.updateWidget);
+  const moveWidgets = useBoardStore((s) => s.moveWidgets);
   const deleteWidget = useBoardStore((s) => s.deleteWidget);
   const bringToFront = useBoardStore((s) => s.bringToFront);
   const lockWidget = useBoardStore((s) => s.lockWidget);
-  const zoom = useBoardStore((s) => s.viewport.zoom);
+  const saveHistory = useBoardStore((s) => s.saveHistory);
+  const viewport = useBoardStore((s) => s.viewport);
+  const selectedWidgets = useBoardStore((s) => s.selectedWidgets);
+  const focusedWidgetId = useBoardStore((s) => s.focusedWidgetId);
+  const isFocused = focusedWidgetId === widget.id;
 
   useGesture(
     {
       onDragStart: () => {
         isDragging.current = false;
+        hasMoved.current = false;
+
+        // Snapshot initial positions of all widgets that will move
+        const positions = new Map<string, { x: number; y: number }>();
+        if (isSelected && selectedWidgets.size > 1) {
+          const allWidgets = useBoardStore.getState().widgets;
+          for (const w of allWidgets) {
+            if (selectedWidgets.has(w.id)) {
+              positions.set(w.id, { x: w.x, y: w.y });
+            }
+          }
+        } else {
+          positions.set(widget.id, { x: widget.x, y: widget.y });
+        }
+        initialPositions.current = positions;
+
         bringToFront(widget.id);
       },
-      onDrag: ({ delta: [dx, dy], tap }) => {
+      onDrag: ({ movement: [mx, my], tap }) => {
         if (tap) return;
+
+        // Save history before first move
+        if (!hasMoved.current) {
+          saveHistory();
+          hasMoved.current = true;
+        }
+
         isDragging.current = true;
-        updateWidget(widget.id, {
-          x: widget.x + dx / zoom,
-          y: widget.y + dy / zoom,
-        });
+
+        const dx = mx / viewport.zoom;
+        const dy = my / viewport.zoom;
+
+        // Move all selected widgets together, or just this one
+        if (initialPositions.current.size > 1) {
+          const moves: Record<string, { x: number; y: number }> = {};
+          for (const [id, pos] of initialPositions.current) {
+            moves[id] = { x: pos.x + dx, y: pos.y + dy };
+          }
+          moveWidgets(moves, true);
+        } else {
+          const pos = initialPositions.current.get(widget.id)!;
+          updateWidget(widget.id, {
+            x: pos.x + dx,
+            y: pos.y + dy,
+          }, true);
+        }
       },
       onDragEnd: ({ tap }) => {
         if (tap && !isDragging.current && onTap && !widget.locked) {
           onTap();
         }
         isDragging.current = false;
+        hasMoved.current = false;
       },
     },
     {
@@ -56,7 +102,9 @@ export function DragWrapper({ widget, children, onTap }: DragWrapperProps) {
     <div
       ref={wrapperRef}
       data-widget
-      className="absolute group touch-none select-none"
+      className={`absolute group touch-none select-none cursor-move hover:shadow-lg transition-shadow ${
+        isSelected ? "ring-2 ring-blue-500 ring-offset-2 shadow-xl" : ""
+      } ${isFocused ? "widget-focused" : ""}`}
       style={{
         left: widget.x,
         top: widget.y,

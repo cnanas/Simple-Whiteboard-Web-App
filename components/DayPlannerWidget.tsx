@@ -59,9 +59,10 @@ function getDatesFromStart(startDate: string, numDays: number): string[] {
 interface DayPlannerWidgetProps {
   widget: DayPlannerWidgetType;
   standalone?: boolean;
+  isSelected?: boolean;
 }
 
-export function DayPlannerWidget({ widget, standalone }: DayPlannerWidgetProps) {
+export function DayPlannerWidget({ widget, standalone, isSelected }: DayPlannerWidgetProps) {
   const [addingForDate, setAddingForDate] = useState<string | null>(null);
   const [newTaskText, setNewTaskText] = useState("");
   const [newTaskTime, setNewTaskTime] = useState("9:00");
@@ -355,7 +356,7 @@ export function DayPlannerWidget({ widget, standalone }: DayPlannerWidgetProps) 
   );
 
   if (standalone) return inner;
-  return <DragWrapper widget={widget}>{inner}</DragWrapper>;
+  return <DragWrapper widget={widget} isSelected={isSelected}>{inner}</DragWrapper>;
 }
 
 function TaskCard({

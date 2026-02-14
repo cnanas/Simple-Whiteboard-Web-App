@@ -10,11 +10,12 @@ export interface WidgetBase {
   zIndex: number;
   locked: boolean;
   encryptedContent?: string;
+  createdAt?: number;
 }
 
 // Base fields that are NOT encrypted when locking a widget
 export const WIDGET_BASE_KEYS: ReadonlySet<string> = new Set([
-  "id", "type", "x", "y", "width", "height", "zIndex", "locked", "encryptedContent",
+  "id", "type", "x", "y", "width", "height", "zIndex", "locked", "encryptedContent", "createdAt",
 ]);
 
 export interface StickyWidget extends WidgetBase {

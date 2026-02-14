@@ -10,9 +10,10 @@ import { ResizeHandle } from "./ResizeHandle";
 interface StickerWidgetProps {
   widget: StickerWidgetType;
   standalone?: boolean;
+  isSelected?: boolean;
 }
 
-export function StickerWidget({ widget, standalone }: StickerWidgetProps) {
+export function StickerWidget({ widget, standalone, isSelected }: StickerWidgetProps) {
   const [showPicker, setShowPicker] = useState(!widget.emoji);
   const updateWidget = useBoardStore((s) => s.updateWidget);
 
@@ -77,7 +78,7 @@ export function StickerWidget({ widget, standalone }: StickerWidgetProps) {
 
   if (standalone) return inner;
   return (
-    <DragWrapper widget={widget} onTap={() => setShowPicker(true)}>
+    <DragWrapper widget={widget} isSelected={isSelected} onTap={() => setShowPicker(true)}>
       {inner}
     </DragWrapper>
   );

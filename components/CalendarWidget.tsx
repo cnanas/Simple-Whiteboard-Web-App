@@ -8,6 +8,7 @@ import { ResizeHandle } from "./ResizeHandle";
 interface CalendarWidgetProps {
   widget: CalendarWidgetType;
   standalone?: boolean;
+  isSelected?: boolean;
 }
 
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
@@ -24,7 +25,7 @@ function getFirstDayOfMonth(month: number, year: number) {
   return new Date(year, month, 1).getDay();
 }
 
-export function CalendarWidget({ widget, standalone }: CalendarWidgetProps) {
+export function CalendarWidget({ widget, standalone, isSelected }: CalendarWidgetProps) {
   const updateWidget = useBoardStore((s) => s.updateWidget);
 
   const today = new Date();
@@ -121,5 +122,5 @@ export function CalendarWidget({ widget, standalone }: CalendarWidgetProps) {
   );
 
   if (standalone) return inner;
-  return <DragWrapper widget={widget}>{inner}</DragWrapper>;
+  return <DragWrapper widget={widget} isSelected={isSelected}>{inner}</DragWrapper>;
 }

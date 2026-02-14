@@ -10,9 +10,10 @@ import { ResizeHandle } from "./ResizeHandle";
 interface TaskListWidgetProps {
   widget: TaskListWidgetType;
   standalone?: boolean;
+  isSelected?: boolean;
 }
 
-export function TaskListWidget({ widget, standalone }: TaskListWidgetProps) {
+export function TaskListWidget({ widget, standalone, isSelected }: TaskListWidgetProps) {
   const [newItemText, setNewItemText] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
@@ -161,5 +162,5 @@ export function TaskListWidget({ widget, standalone }: TaskListWidgetProps) {
   );
 
   if (standalone) return inner;
-  return <DragWrapper widget={widget}>{inner}</DragWrapper>;
+  return <DragWrapper widget={widget} isSelected={isSelected}>{inner}</DragWrapper>;
 }

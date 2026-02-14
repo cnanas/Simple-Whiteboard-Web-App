@@ -9,9 +9,10 @@ import { ResizeHandle } from "./ResizeHandle";
 interface LinkCardWidgetProps {
   widget: LinkCardWidgetType;
   standalone?: boolean;
+  isSelected?: boolean;
 }
 
-export function LinkCardWidget({ widget, standalone }: LinkCardWidgetProps) {
+export function LinkCardWidget({ widget, standalone, isSelected }: LinkCardWidgetProps) {
   const [isEditing, setIsEditing] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const updateWidget = useBoardStore((s) => s.updateWidget);
@@ -83,7 +84,7 @@ export function LinkCardWidget({ widget, standalone }: LinkCardWidgetProps) {
 
   if (standalone) return inner;
   return (
-    <DragWrapper widget={widget} onTap={() => setIsEditing(true)}>
+    <DragWrapper widget={widget} isSelected={isSelected} onTap={() => setIsEditing(true)}>
       {inner}
     </DragWrapper>
   );

@@ -10,9 +10,10 @@ import { ResizeHandle } from "./ResizeHandle";
 interface StickyNoteProps {
   widget: StickyWidget;
   standalone?: boolean;
+  isSelected?: boolean;
 }
 
-export function StickyNote({ widget, standalone }: StickyNoteProps) {
+export function StickyNote({ widget, standalone, isSelected }: StickyNoteProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showColors, setShowColors] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -127,7 +128,7 @@ export function StickyNote({ widget, standalone }: StickyNoteProps) {
 
   if (standalone) return inner;
   return (
-    <DragWrapper widget={widget} onTap={() => setIsEditing(true)}>
+    <DragWrapper widget={widget} onTap={() => setIsEditing(true)} isSelected={isSelected}>
       {inner}
     </DragWrapper>
   );

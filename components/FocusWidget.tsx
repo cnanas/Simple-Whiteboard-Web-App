@@ -9,11 +9,12 @@ import { ResizeHandle } from "./ResizeHandle";
 interface FocusWidgetProps {
   widget: FocusWidgetType;
   standalone?: boolean;
+  isSelected?: boolean;
 }
 
 const MAX_ITEMS = 8;
 
-export function FocusWidget({ widget, standalone }: FocusWidgetProps) {
+export function FocusWidget({ widget, standalone, isSelected }: FocusWidgetProps) {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [newItem, setNewItem] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -119,5 +120,5 @@ export function FocusWidget({ widget, standalone }: FocusWidgetProps) {
   );
 
   if (standalone) return inner;
-  return <DragWrapper widget={widget}>{inner}</DragWrapper>;
+  return <DragWrapper widget={widget} isSelected={isSelected}>{inner}</DragWrapper>;
 }

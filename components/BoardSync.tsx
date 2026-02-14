@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useBoardStore } from "@/store/boardStore";
+import { useCollaborationStore } from "@/store/collaborationStore";
 import type { Widget } from "@/types";
 
 const SAVE_DEBOUNCE_MS = 2000;
@@ -16,6 +17,7 @@ export function BoardSync() {
   const widgets = useBoardStore((s) => s.widgets);
   const viewport = useBoardStore((s) => s.viewport);
   const loadBoard = useBoardStore((s) => s.loadBoard);
+  const isCollaborative = useCollaborationStore((s) => s.isCollaborative);
   const hasLoadedOnce = useRef(false);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -59,7 +61,9 @@ export function BoardSync() {
   }, [status, session?.user?.id, loadBoard]);
 
   // Auto-save to cloud when signed in and state changes (debounced)
+  // Skip when in collaborative mode — Liveblocks handles sync
   useEffect(() => {
+    if (isCollaborative) return;
     if (status !== "authenticated" || !session?.user?.id) return;
     if (saveTimeout.current) clearTimeout(saveTimeout.current);
     saveTimeout.current = setTimeout(() => {
@@ -73,7 +77,7 @@ export function BoardSync() {
     return () => {
       if (saveTimeout.current) clearTimeout(saveTimeout.current);
     };
-  }, [status, session?.user?.id, widgets, viewport]);
+  }, [isCollaborative, status, session?.user?.id, widgets, viewport]);
 
   return null;
 }

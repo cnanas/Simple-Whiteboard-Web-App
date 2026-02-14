@@ -16,28 +16,30 @@ interface WidgetRendererProps {
   widget: Widget;
   /** When true, render without DragWrapper (e.g. in list-view detail sheet) */
   standalone?: boolean;
+  /** When true, show selection border */
+  isSelected?: boolean;
 }
 
-function WidgetRendererInner({ widget, standalone }: WidgetRendererProps) {
+function WidgetRendererInner({ widget, standalone, isSelected }: WidgetRendererProps) {
   switch (widget.type) {
     case "sticky":
-      return <StickyNote widget={widget} standalone={standalone} />;
+      return <StickyNote widget={widget} standalone={standalone} isSelected={isSelected} />;
     case "notepad":
-      return <NotepadWidget widget={widget} standalone={standalone} />;
+      return <NotepadWidget widget={widget} standalone={standalone} isSelected={isSelected} />;
     case "taskList":
-      return <TaskListWidget widget={widget} standalone={standalone} />;
+      return <TaskListWidget widget={widget} standalone={standalone} isSelected={isSelected} />;
     case "sticker":
-      return <StickerWidget widget={widget} standalone={standalone} />;
+      return <StickerWidget widget={widget} standalone={standalone} isSelected={isSelected} />;
     case "calendar":
-      return <CalendarWidget widget={widget} standalone={standalone} />;
+      return <CalendarWidget widget={widget} standalone={standalone} isSelected={isSelected} />;
     case "linkCard":
-      return <LinkCardWidget widget={widget} standalone={standalone} />;
+      return <LinkCardWidget widget={widget} standalone={standalone} isSelected={isSelected} />;
     case "focus":
-      return <FocusWidget widget={widget} standalone={standalone} />;
+      return <FocusWidget widget={widget} standalone={standalone} isSelected={isSelected} />;
     case "codeSnippet":
-      return <CodeSnippetWidget widget={widget} standalone={standalone} />;
+      return <CodeSnippetWidget widget={widget} standalone={standalone} isSelected={isSelected} />;
     case "dayPlanner":
-      return <DayPlannerWidget widget={widget} standalone={standalone} />;
+      return <DayPlannerWidget widget={widget} standalone={standalone} isSelected={isSelected} />;
   }
 }
 

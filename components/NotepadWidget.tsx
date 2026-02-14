@@ -9,12 +9,13 @@ import { ResizeHandle } from "./ResizeHandle";
 interface NotepadWidgetProps {
   widget: NotepadWidgetType;
   standalone?: boolean;
+  isSelected?: boolean;
 }
 
 const MIN_WIDTH = 200;
 const MIN_HEIGHT = 120;
 
-export function NotepadWidget({ widget, standalone }: NotepadWidgetProps) {
+export function NotepadWidget({ widget, standalone, isSelected }: NotepadWidgetProps) {
   const [isEditing, setIsEditing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const noteRef = useRef<HTMLDivElement>(null);
@@ -95,7 +96,7 @@ export function NotepadWidget({ widget, standalone }: NotepadWidgetProps) {
 
   if (standalone) return inner;
   return (
-    <DragWrapper widget={widget} onTap={() => setIsEditing(true)}>
+    <DragWrapper widget={widget} isSelected={isSelected} onTap={() => setIsEditing(true)}>
       {inner}
     </DragWrapper>
   );
