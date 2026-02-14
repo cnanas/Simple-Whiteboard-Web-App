@@ -4,6 +4,7 @@ import { useRef, useCallback, useMemo, useState, useEffect } from "react";
 import { useGesture } from "@use-gesture/react";
 import { useBoardStore } from "@/store/boardStore";
 import { WidgetRenderer } from "./WidgetRenderer";
+import { AlignmentTools } from "./AlignmentTools";
 
 const MIN_ZOOM = 0.1;
 const MAX_ZOOM = 3;
@@ -272,6 +273,9 @@ export function Canvas() {
           }}
         />
       )}
+
+      {/* Alignment tools (show when multiple widgets selected) */}
+      <AlignmentTools selectedWidgets={selectedWidgets} />
 
       {/* Space key hint */}
       {isSpacePressed && (

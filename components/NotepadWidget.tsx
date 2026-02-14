@@ -5,6 +5,7 @@ import { useBoardStore } from "@/store/boardStore";
 import type { NotepadWidget as NotepadWidgetType } from "@/types";
 import { DragWrapper } from "./DragWrapper";
 import { ResizeHandle } from "./ResizeHandle";
+import { MarkdownContent } from "./MarkdownContent";
 
 interface NotepadWidgetProps {
   widget: NotepadWidgetType;
@@ -53,10 +54,24 @@ export function NotepadWidget({ widget, standalone, isSelected }: NotepadWidgetP
           flex flex-col overflow-hidden relative group"
       >
         {/* Header */}
-        <div className="flex items-center px-3 pt-2 pb-1">
+        <div className="flex items-center justify-between px-3 pt-2 pb-1">
           <span className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
             Notepad
           </span>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              updateWidget(widget.id, { markdown: !widget.markdown });
+            }}
+            className={`w-5 h-5 rounded flex items-center justify-center text-xs transition-colors opacity-0 group-hover:opacity-100
+              ${widget.markdown ? "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200" : "text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"}`}
+            title={widget.markdown ? "Disable markdown" : "Enable markdown"}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 7l6 6-6 6V7z" />
+              <path d="M14 7l6 6-6 6V7z" />
+            </svg>
+          </button>
         </div>
 
         {/* Content */}
@@ -78,6 +93,8 @@ export function NotepadWidget({ widget, standalone, isSelected }: NotepadWidgetP
                 font-[family-name:var(--font-geist-sans)]"
               placeholder="Write your notes..."
             />
+          ) : widget.markdown && widget.content ? (
+            <MarkdownContent content={widget.content} className="overflow-y-auto" />
           ) : (
             <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words
               font-[family-name:var(--font-geist-sans)]">

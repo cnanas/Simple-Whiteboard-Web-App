@@ -6,6 +6,7 @@ import { STICKY_COLORS } from "@/types";
 import type { StickyWidget } from "@/types";
 import { DragWrapper } from "./DragWrapper";
 import { ResizeHandle } from "./ResizeHandle";
+import { MarkdownContent } from "./MarkdownContent";
 
 interface StickyNoteProps {
   widget: StickyWidget;
@@ -52,8 +53,22 @@ export function StickyNote({ widget, standalone, isSelected }: StickyNoteProps) 
           transition-shadow duration-150 hover:shadow-lg flex flex-col overflow-hidden relative group"
         style={{ backgroundColor: widget.color }}
       >
-        {/* Header bar with color toggle */}
+        {/* Header bar with color toggle and markdown toggle */}
         <div className="flex items-center justify-end gap-1 px-2 pt-1.5 pb-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              updateWidget(widget.id, { markdown: !widget.markdown });
+            }}
+            className={`w-5 h-5 rounded flex items-center justify-center text-xs transition-colors
+              ${widget.markdown ? "bg-black/10 text-black/70" : "text-black/40 hover:text-black/70"}`}
+            title={widget.markdown ? "Disable markdown" : "Enable markdown"}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 7l6 6-6 6V7z" />
+              <path d="M14 7l6 6-6 6V7z" />
+            </svg>
+          </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -113,6 +128,11 @@ export function StickyNote({ widget, standalone, isSelected }: StickyNoteProps) 
                 text-sm text-black/80 placeholder-black/30
                 font-[family-name:var(--font-geist-sans)]"
               placeholder="Type something..."
+            />
+          ) : widget.markdown && widget.content ? (
+            <MarkdownContent
+              content={widget.content}
+              className="text-sm text-black/80 [&_*]:text-black/80"
             />
           ) : (
             <p className="text-sm text-black/80 whitespace-pre-wrap break-words font-[family-name:var(--font-geist-sans)]">

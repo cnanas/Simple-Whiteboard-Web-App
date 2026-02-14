@@ -9,10 +9,14 @@ import { exportToTxt, exportToPdf } from "@/lib/export";
 import { ThemeToggle } from "./ThemeToggle";
 import { AuthMenu } from "./AuthMenu";
 import { ChangelogModal } from "./ChangelogModal";
+import { MarkdownImportDialog } from "./MarkdownImportDialog";
+import { TemplatesDialog } from "./TemplatesDialog";
 
 export function FAB() {
   const [open, setOpen] = useState(false);
   const [showChangelog, setShowChangelog] = useState(false);
+  const [showMarkdownImport, setShowMarkdownImport] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
   const addWidget = useBoardStore((s) => s.addWidget);
   const widgets = useBoardStore((s) => s.widgets);
   const viewMode = useBoardStore((s) => s.viewMode);
@@ -62,6 +66,46 @@ export function FAB() {
                   <span className="text-xs font-medium">{option.label}</span>
                 </button>
               ))}
+            </div>
+          </section>
+
+          {/* Import & Templates */}
+          <section>
+            <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+              Quick Actions
+            </h3>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  close();
+                  setShowMarkdownImport(true);
+                }}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl
+                  bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
+                </svg>
+                Import
+              </button>
+              <button
+                onClick={() => {
+                  close();
+                  setShowTemplates(true);
+                }}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl
+                  bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="3" width="7" height="7" />
+                  <rect x="14" y="3" width="7" height="7" />
+                  <rect x="14" y="14" width="7" height="7" />
+                  <rect x="3" y="14" width="7" height="7" />
+                </svg>
+                Templates
+              </button>
             </div>
           </section>
 
@@ -161,6 +205,16 @@ export function FAB() {
       {showChangelog && (
         <ChangelogModal onClose={() => setShowChangelog(false)} />
       )}
+
+      <MarkdownImportDialog
+        isOpen={showMarkdownImport}
+        onClose={() => setShowMarkdownImport(false)}
+      />
+
+      <TemplatesDialog
+        isOpen={showTemplates}
+        onClose={() => setShowTemplates(false)}
+      />
     </>
   );
 }

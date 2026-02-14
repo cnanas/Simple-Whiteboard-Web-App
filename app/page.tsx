@@ -6,7 +6,6 @@ import { BottomBar } from "@/components/BottomBar";
 import { ZoomIndicator } from "@/components/ZoomIndicator";
 import { FAB } from "@/components/FAB";
 import { WidgetListView } from "@/components/WidgetListView";
-import { MobileHeader } from "@/components/MobileHeader";
 import { Onboarding } from "@/components/Onboarding";
 import { BoardSync } from "@/components/BoardSync";
 import { CommandPalette } from "@/components/CommandPalette";
@@ -42,7 +41,6 @@ export default function Home() {
     <Onboarding>
       <BoardSync />
       {viewMode === "list" ? <WidgetListView /> : <Canvas />}
-      <MobileHeader />
       <BottomBar />
       <ZoomIndicator />
       <FAB />

@@ -6,7 +6,6 @@ import { Canvas } from "@/components/Canvas";
 import { BottomBar } from "@/components/BottomBar";
 import { ZoomIndicator } from "@/components/ZoomIndicator";
 import { FAB } from "@/components/FAB";
-import { MobileHeader } from "@/components/MobileHeader";
 import { CollaborativeRoom } from "@/components/CollaborativeRoom";
 import { PresenceAvatars } from "@/components/PresenceAvatars";
 import { CommandPalette } from "@/components/CommandPalette";
@@ -100,7 +99,6 @@ export default function CollaborativeBoardPage({
   return (
     <CollaborativeRoom roomId={roomId}>
       <Canvas />
-      <MobileHeader />
       <BottomBar />
       <ZoomIndicator />
       <FAB />

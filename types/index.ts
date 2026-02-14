@@ -22,11 +22,13 @@ export interface StickyWidget extends WidgetBase {
   type: "sticky";
   content: string;
   color: string;
+  markdown?: boolean;
 }
 
 export interface NotepadWidget extends WidgetBase {
   type: "notepad";
   content: string;
+  markdown?: boolean;
 }
 
 export interface TaskItem {
