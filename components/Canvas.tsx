@@ -40,6 +40,7 @@ export function Canvas() {
   const widgets = useBoardStore((s) => s.widgets);
   const selectedWidgets = useBoardStore((s) => s.selectedWidgets);
   const setSelectedWidgets = useBoardStore((s) => s.setSelectedWidgets);
+  const deleteWidget = useBoardStore((s) => s.deleteWidget);
   const setViewportThrottled = useThrottledViewport();
   const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
   const [isSpacePressed, setIsSpacePressed] = useState(false);
@@ -69,6 +70,15 @@ export function Canvas() {
 
       // Clear selection with Escape
       if (e.code === "Escape" && selectedWidgets.size > 0) {
+        setSelectedWidgets(new Set());
+      }
+
+      // Delete selected widgets with Delete or Backspace
+      if ((e.code === "Delete" || e.code === "Backspace") && selectedWidgets.size > 0 && !isTyping) {
+        e.preventDefault();
+        selectedWidgets.forEach((widgetId) => {
+          deleteWidget(widgetId);
+        });
         setSelectedWidgets(new Set());
       }
     };

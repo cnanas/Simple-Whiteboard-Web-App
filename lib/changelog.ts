@@ -11,11 +11,13 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
     changes: [
       "Markdown support: Enable markdown rendering in sticky notes and notepads with toggle button",
       "Alignment tools: Align and distribute multiple selected widgets (left/right/top/bottom/center, horizontal/vertical distribution)",
+      "Multi-delete: Delete multiple selected widgets at once with Delete or Backspace key",
       "Markdown import: Paste markdown text to auto-create widgets (headings → sticky notes, paragraphs → notepads, code blocks → code snippets, task lists → task widgets)",
       "Board templates: 6 pre-built layouts (Sprint Planning, Meeting Notes, Study & Research, Daily Standup, Brainstorming, Project Overview)",
       "Real-time collaboration: Share boards with live cursors, presence avatars, and concurrent editing via Liveblocks",
       "Enhanced search: Filter by color, sort by type/date/position, focus on widget from search results with pulse animation",
-      "Improved UX: Labeled quick actions in bottom bar, removed mobile header for cleaner interface, better widget spacing in templates",
+      "Improved UX: Labeled quick actions in bottom bar, removed mobile header for cleaner interface, better widget spacing in templates, fixed user menu positioning",
+      "Auto-save: All changes automatically save to cloud every 2 seconds when signed in",
     ],
   },
   {

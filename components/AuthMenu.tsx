@@ -146,7 +146,7 @@ export function AuthMenu() {
       </button>
 
       {open && (
-        <div className="absolute top-full right-0 mt-1 py-1 min-w-[180px] rounded-lg
+        <div className="absolute bottom-full right-0 mb-2 py-1 min-w-[180px] rounded-lg
           bg-white dark:bg-[#1a1f26] border border-black/10 dark:border-white/10 shadow-lg z-[100]">
           <div className="px-3 py-2 border-b border-black/5 dark:border-white/10">
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
