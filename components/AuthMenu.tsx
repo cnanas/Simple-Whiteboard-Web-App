@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useBoardStore } from "@/store/boardStore";
+import { AuthModal } from "./AuthModal";
 
 export function AuthMenu() {
   const { data: session, status } = useSession();
@@ -10,6 +11,7 @@ export function AuthMenu() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "ok" | "error"; text: string } | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const widgets = useBoardStore((s) => s.widgets);
   const viewport = useBoardStore((s) => s.viewport);
@@ -97,35 +99,40 @@ export function AuthMenu() {
 
   if (!session) {
     return (
-      <div className="relative">
-        <button
-          onClick={() => signIn(undefined, { callbackUrl: "/" })}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg whitespace-nowrap shrink-0
-            bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600
-            text-gray-700 dark:text-gray-200 text-sm font-medium
-            transition-colors duration-150"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-            <polyline points="10 17 15 12 10 7" />
-            <line x1="15" y1="12" x2="3" y2="12" />
-          </svg>
-          Sign in
-        </button>
-      </div>
+      <>
+        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+        <div className="relative">
+          <button
+            onClick={() => setShowAuthModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg whitespace-nowrap shrink-0
+              bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600
+              text-gray-700 dark:text-gray-200 text-sm font-medium
+              transition-colors duration-150"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+              <polyline points="10 17 15 12 10 7" />
+              <line x1="15" y1="12" x2="3" y2="12" />
+            </svg>
+            Sign in
+          </button>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-2 py-1.5 rounded-lg
-          bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600
-          text-gray-700 dark:text-gray-200 text-sm font-medium
-          transition-colors duration-150"
-        title="Account & cloud"
-      >
+    <>
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      <div className="relative" ref={menuRef}>
+        <button
+          onClick={() => setOpen(!open)}
+          className="flex items-center gap-2 px-2 py-1.5 rounded-lg
+            bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600
+            text-gray-700 dark:text-gray-200 text-sm font-medium
+            transition-colors duration-150"
+          title="Account & cloud"
+        >
         {session.user?.image ? (
           <img
             src={session.user.image}
@@ -192,6 +199,7 @@ export function AuthMenu() {
           )}
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

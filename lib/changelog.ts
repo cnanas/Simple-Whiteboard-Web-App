@@ -17,6 +17,8 @@ export const CHANGELOG_ENTRIES: ChangelogEntry[] = [
       "Real-time collaboration: Share boards with live cursors, presence avatars, and concurrent editing via Liveblocks",
       "Enhanced search: Filter by color, sort by type/date/position, focus on widget from search results with pulse animation",
       "Improved UX: Labeled quick actions in bottom bar, removed mobile header for cleaner interface, better widget spacing in templates, fixed user menu positioning",
+      "Modern welcome toast: Replaced intrusive splash screen with subtle iOS-style notification in top-right corner",
+      "Inline authentication: Sign-in modal expands in place instead of redirecting to separate page, fully mobile-friendly design",
       "Auto-save: All changes automatically save to cloud every 2 seconds when signed in",
     ],
   },

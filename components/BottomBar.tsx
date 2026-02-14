@@ -2,12 +2,13 @@
 
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { signIn, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useBoardStore } from "@/store/boardStore";
 import type { WidgetType } from "@/types";
 import { WIDGET_OPTIONS } from "./WidgetPicker";
 import { ThemeToggle } from "./ThemeToggle";
 import { AuthMenu } from "./AuthMenu";
+import { AuthModal } from "./AuthModal";
 import { exportToTxt, exportToPdf } from "@/lib/export";
 import { ChangelogModal } from "./ChangelogModal";
 import { MarkdownImportDialog } from "./MarkdownImportDialog";
@@ -24,6 +25,7 @@ export function BottomBar() {
   const [showChangelog, setShowChangelog] = useState(false);
   const [showMarkdownImport, setShowMarkdownImport] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const widgetGridRef = useRef<HTMLDivElement>(null);
   const overflowRef = useRef<HTMLDivElement>(null);
 
@@ -184,7 +186,7 @@ export function BottomBar() {
           </div>
         ) : status !== "loading" ? (
           <button
-            onClick={() => signIn(undefined, { callbackUrl: "/" })}
+            onClick={() => setShowAuthModal(true)}
             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl
               text-gray-500 dark:text-gray-400
               hover:bg-gray-100 dark:hover:bg-white/10
@@ -376,6 +378,11 @@ export function BottomBar() {
         <ChangelogModal onClose={() => setShowChangelog(false)} />,
         document.body
       )}
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
 
       <MarkdownImportDialog
         isOpen={showMarkdownImport}
