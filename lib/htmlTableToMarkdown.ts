@@ -58,7 +58,7 @@ export function plainTextTableToMarkdown(text: string): string | null {
       : line
           .split("|")
           .map((c) => c.trim())
-          .filter((_, i, arr) => (hasPipes && arr.length > 1 ? true : c.length > 0));
+          .filter((cell, _i, arr) => (hasPipes && arr.length > 1 ? true : cell.length > 0));
     return parts;
   });
   const colCount = Math.max(...cells.map((r) => r.length), 1);
