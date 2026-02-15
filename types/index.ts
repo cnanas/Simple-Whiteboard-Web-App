@@ -55,7 +55,8 @@ export interface TaskItem {
   id: string;
   text: string;
   done: boolean;
-  due?: string;
+  due?: string; // YYYY-MM-DD
+  estimate?: number; // minutes
 }
 
 export interface TaskListWidget extends WidgetBase {

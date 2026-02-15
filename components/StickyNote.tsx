@@ -74,28 +74,25 @@ export function StickyNote({ widget, standalone, isSelected }: StickyNoteProps) 
   }, [isEditing, showColors, handleClickOutside]);
 
   const inner = (
-    <div
-        ref={noteRef}
-        className="w-full h-full rounded-xl shadow-md border border-black/5 dark:border-white/10
-          transition-shadow duration-150 hover:shadow-lg flex flex-col overflow-hidden relative group"
-        style={{ backgroundColor: widget.color }}
+    <div ref={noteRef} className="w-full h-full relative group">
+      {/* Floating format bar — above the sticky, outside the card */}
+      <div
+        className="absolute left-0 right-8 z-10 -top-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none group-hover:pointer-events-auto"
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Header bar: text style, color */}
-        <div className="flex flex-wrap items-center justify-end gap-1 px-2 pt-1.5 pb-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+        <div className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800">
           <TextStyleToolbar
             value={widget.textStyle}
             onChange={(textStyle) => updateWidget(widget.id, { textStyle })}
             onFormatSelection={isEditing ? handleFormatSelection : undefined}
             showListOptions
-            className="mr-auto"
           />
           <button
             onClick={(e) => {
               e.stopPropagation();
               setShowColors(!showColors);
             }}
-            className="w-5 h-5 rounded-full flex items-center justify-center
-              text-black/40 hover:text-black/70 text-xs"
+            className="w-7 h-7 rounded flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
             title="Change color"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -104,10 +101,17 @@ export function StickyNote({ widget, standalone, isSelected }: StickyNoteProps) 
             </svg>
           </button>
         </div>
+      </div>
 
-        {/* Color picker */}
+      {/* Sticky card */}
+      <div
+        className="w-full h-full rounded-xl shadow-md border border-black/5 dark:border-white/10
+          transition-shadow duration-150 hover:shadow-lg flex flex-col overflow-hidden"
+        style={{ backgroundColor: widget.color }}
+      >
+        {/* Color picker (when open) */}
         {showColors && (
-          <div className="flex gap-1.5 px-2 pb-1.5">
+          <div className="flex gap-1.5 px-2 pt-2 pb-1">
             {STICKY_COLORS.map((c) => (
               <button
                 key={c.name}
@@ -131,7 +135,7 @@ export function StickyNote({ widget, standalone, isSelected }: StickyNoteProps) 
         )}
 
         {/* Content */}
-        <div className="flex-1 px-3 pb-2 min-h-0">
+        <div className="flex-1 px-3 pb-2 min-h-0 pt-1">
           {isEditing ? (
             <textarea
               ref={textareaRef}
@@ -185,6 +189,7 @@ export function StickyNote({ widget, standalone, isSelected }: StickyNoteProps) 
         </div>
         <ResizeHandle widgetId={widget.id} width={widget.width} height={widget.height} minWidth={120} minHeight={100} />
       </div>
+    </div>
   );
 
   if (standalone) return inner;

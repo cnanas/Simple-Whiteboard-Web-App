@@ -115,7 +115,7 @@ export function DragWrapper({ widget, children, onTap, isSelected }: DragWrapper
       onPointerDown={(e) => e.stopPropagation()}
     >
       <div
-        className="w-full h-full min-h-0 overflow-hidden select-text"
+        className="w-full h-full min-h-0 overflow-visible select-text"
         onClick={(e) => {
           const target = e.target as HTMLElement;
           const isInteractive = target.closest("button, a, input, textarea, select, [contenteditable]");

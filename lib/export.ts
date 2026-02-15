@@ -25,7 +25,9 @@ function widgetToText(widget: Widget): string {
     case "taskList": {
       const lines = widget.title ? [`## ${widget.title}`] : [];
       for (const item of widget.items) {
-        lines.push(`${item.done ? "[x]" : "[ ]"} ${item.text}`);
+        const duePart = item.due ? ` (due: ${item.due})` : "";
+        const estPart = item.estimate != null ? ` [${item.estimate} min]` : "";
+        lines.push(`${item.done ? "[x]" : "[ ]"} ${item.text}${duePart}${estPart}`);
       }
       return lines.join("\n");
     }

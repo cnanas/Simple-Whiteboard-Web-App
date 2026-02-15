@@ -9,6 +9,7 @@ import { MarkdownContent } from "./MarkdownContent";
 import { TextStyleToolbar } from "./TextStyleToolbar";
 import { getTextStyleClassName, getListStyle } from "@/lib/textStyle";
 import { applyFormatToSelection, type SelectionFormatType } from "@/lib/selectionFormat";
+import { htmlTableToMarkdown, plainTextTableToMarkdown, getDefaultMarkdownTable } from "@/lib/htmlTableToMarkdown";
 
 interface NotepadWidgetProps {
   widget: NotepadWidgetType;
@@ -44,6 +45,55 @@ export function NotepadWidget({ widget, standalone, isSelected }: NotepadWidgetP
         requestAnimationFrame(() => {
           ta.focus();
           ta.setSelectionRange(result.selectionStart, result.selectionEnd);
+        });
+      }
+    },
+    [widget.id, widget.content, updateWidget]
+  );
+
+  const handleInsertTable = useCallback(() => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const content = widget.content ?? "";
+    const before = content.slice(0, start);
+    const after = content.slice(start);
+    const table = getDefaultMarkdownTable(3, 3);
+    const prefix = before && !before.endsWith("\n") ? "\n\n" : before ? "\n" : "";
+    const newContent = before + prefix + table + "\n\n" + after;
+    updateWidget(widget.id, { content: newContent, markdown: true });
+    const insertLen = prefix.length + table.length + 2;
+    requestAnimationFrame(() => {
+      ta.focus();
+      ta.setSelectionRange(start + insertLen, start + insertLen);
+    });
+  }, [widget.id, widget.content, updateWidget]);
+
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      let markdown: string | null = null;
+      const html = e.clipboardData?.getData("text/html");
+      const plain = e.clipboardData?.getData("text/plain");
+      if (html) markdown = htmlTableToMarkdown(html);
+      if (markdown == null && plain && plain.includes("\t")) {
+        markdown = plainTextTableToMarkdown(plain);
+      }
+      if (markdown != null) {
+        e.preventDefault();
+        const ta = textareaRef.current;
+        if (!ta) return;
+        const start = ta.selectionStart;
+        const end = ta.selectionEnd;
+        const content = widget.content ?? "";
+        const before = content.slice(0, start);
+        const after = content.slice(end);
+        const prefix = before && !before.endsWith("\n") ? "\n\n" : before ? "\n" : "";
+        const newContent = before + prefix + markdown + "\n\n" + after;
+        updateWidget(widget.id, { content: newContent, markdown: true });
+        const insertLen = prefix.length + markdown.length + 2;
+        requestAnimationFrame(() => {
+          ta.focus();
+          ta.setSelectionRange(start + insertLen, start + insertLen);
         });
       }
     },
@@ -91,6 +141,7 @@ export function NotepadWidget({ widget, standalone, isSelected }: NotepadWidgetP
               onChange={(textStyle) => updateWidget(widget.id, { textStyle })}
               onFormatSelection={isEditing ? handleFormatSelection : undefined}
               showListOptions
+              onInsertTable={isEditing ? handleInsertTable : undefined}
             />
           </div>
         </div>
@@ -104,6 +155,7 @@ export function NotepadWidget({ widget, standalone, isSelected }: NotepadWidgetP
               onChange={(e) =>
                 updateWidget(widget.id, { content: e.target.value })
               }
+              onPaste={handlePaste}
               onKeyDown={(e) => {
                 if (e.key === "Escape") setIsEditing(false);
                 e.stopPropagation();

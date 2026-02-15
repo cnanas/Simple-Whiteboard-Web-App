@@ -59,6 +59,24 @@ export function MarkdownContent({ content, className = "" }: MarkdownContentProp
               {children}
             </a>
           ),
+          table: ({ children }) => (
+            <div className="overflow-x-auto my-2 rounded-lg border border-gray-200 dark:border-gray-700">
+              <table className="min-w-full border-collapse text-sm">{children}</table>
+            </div>
+          ),
+          thead: ({ children }) => (
+            <thead className="bg-gray-100 dark:bg-gray-800">{children}</thead>
+          ),
+          tbody: ({ children }) => <tbody className="divide-y divide-gray-200 dark:divide-gray-700">{children}</tbody>,
+          tr: ({ children }) => <tr>{children}</tr>,
+          th: ({ children }) => (
+            <th className="px-3 py-2 text-left font-semibold text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700">
+              {children}
+            </th>
+          ),
+          td: ({ children }) => (
+            <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{children}</td>
+          ),
         }}
       >
         {content}
